@@ -7,6 +7,7 @@ import 'workout_screen.dart';
 import 'progress_screen.dart';
 import 'profile_screen.dart';
 import 'timer_screen.dart';
+import 'workout_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -143,21 +144,53 @@ class HomeTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: workoutProvider.workouts.take(5).length,
-                    itemBuilder: (context, index) {
-                      final workout = workoutProvider.workouts[index];
-                      return Card(
-                        child: ListTile(
-                          title: Text(workout.name),
-                          subtitle: Text(
-                            '${workout.date.day}/${workout.date.month}/${workout.date.year}',
+                  child: workoutProvider.workouts.isEmpty
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.fitness_center, size: 64, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text(
+                                'No workouts yet',
+                                style: TextStyle(fontSize: 18, color: Colors.grey),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Start your first workout to see it here',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
                           ),
-                          trailing: Text('${workout.duration ?? 0} min'),
+                        )
+                      : ListView.builder(
+                          itemCount: workoutProvider.workouts.take(5).length,
+                          itemBuilder: (context, index) {
+                            final workout = workoutProvider.workouts[index];
+                            return Card(
+                              child: ListTile(
+                                title: Text(workout.name),
+                                subtitle: Text(
+                                  '${workout.date.day}/${workout.date.month}/${workout.date.year} • ${workout.exercises.length} exercises',
+                                ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text('${workout.duration ?? 0} min'),
+                                    const Icon(Icons.arrow_forward_ios, size: 16),
+                                  ],
+                                ),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => WorkoutDetailScreen(workout: workout),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),

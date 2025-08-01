@@ -325,13 +325,92 @@ class DatabaseService {
   // Workout operations
   Future<int> insertWorkout(Workout workout) async {
     final db = await instance.database;
-    return await db.insert('workouts', workout.toMap());
+    final workoutId = await db.insert('workouts', workout.toMap());
+    
+    // Insert workout exercises and sets
+    for (final workoutExercise in workout.exercises) {
+      final workoutExerciseId = await db.insert('workout_exercises', {
+        'workout_id': workoutId,
+        'exercise_id': workoutExercise.exerciseId,
+      });
+      
+      // Insert sets for this exercise
+      for (final set in workoutExercise.sets) {
+        await db.insert('workout_sets', {
+          'workout_exercise_id': workoutExerciseId,
+          'reps': set.reps,
+          'weight': set.weight,
+          'duration': set.duration,
+        });
+      }
+    }
+    
+    return workoutId;
   }
 
   Future<List<Workout>> getWorkouts() async {
     final db = await instance.database;
-    final result = await db.query('workouts', orderBy: 'date DESC');
-    return result.map((json) => Workout.fromMap(json)).toList();
+    final workoutResults = await db.query('workouts', orderBy: 'date DESC');
+    
+    final workouts = <Workout>[];
+    
+    for (final workoutMap in workoutResults) {
+      final workoutId = workoutMap['id'] as int;
+      
+      // Get workout exercises
+      final workoutExerciseResults = await db.rawQuery('''
+        SELECT we.*, e.name, e.category, e.description
+        FROM workout_exercises we
+        JOIN exercises e ON we.exercise_id = e.id
+        WHERE we.workout_id = ?
+      ''', [workoutId]);
+      
+      final workoutExercises = <WorkoutExercise>[];
+      
+      for (final weMap in workoutExerciseResults) {
+        final workoutExerciseId = weMap['id'] as int;
+        
+        // Get sets for this exercise
+        final setResults = await db.query(
+          'workout_sets',
+          where: 'workout_exercise_id = ?',
+          whereArgs: [workoutExerciseId],
+        );
+        
+        final sets = setResults.map((setMap) => WorkoutSet(
+          id: setMap['id'] as int?,
+          workoutExerciseId: setMap['workout_exercise_id'] as int,
+          reps: setMap['reps'] as int,
+          weight: setMap['weight'] as double?,
+          duration: setMap['duration'] as int?,
+        )).toList();
+        
+        final exercise = Exercise(
+          id: weMap['exercise_id'] as int,
+          name: weMap['name'] as String,
+          category: weMap['category'] as String,
+          description: weMap['description'] as String?,
+        );
+        
+        workoutExercises.add(WorkoutExercise(
+          id: workoutExerciseId,
+          workoutId: workoutId,
+          exerciseId: weMap['exercise_id'] as int,
+          exercise: exercise,
+          sets: sets,
+        ));
+      }
+      
+      workouts.add(Workout(
+        id: workoutId,
+        name: workoutMap['name'] as String,
+        date: DateTime.parse(workoutMap['date'] as String),
+        duration: workoutMap['duration'] as int?,
+        exercises: workoutExercises,
+      ));
+    }
+    
+    return workouts;
   }
 
   // User operations
