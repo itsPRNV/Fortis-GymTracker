@@ -111,4 +111,9 @@ class WorkoutProvider extends ChangeNotifier {
     await DatabaseService.instance.insertExercise(exercise);
     await loadExercises();
   }
+
+  Future<void> reloadExercisesDatabase() async {
+    await DatabaseService.instance.clearAndReloadExercises();
+    await loadExercises();
+  }
 }

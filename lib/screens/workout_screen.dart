@@ -230,8 +230,16 @@ class _ExerciseCard extends StatelessWidget {
   }
 }
 
-class _ExerciseSelector extends StatelessWidget {
+class _ExerciseSelector extends StatefulWidget {
   const _ExerciseSelector();
+
+  @override
+  State<_ExerciseSelector> createState() => _ExerciseSelectorState();
+}
+
+class _ExerciseSelectorState extends State<_ExerciseSelector> {
+  String _searchQuery = '';
+  String? _selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -242,11 +250,21 @@ class _ExerciseSelector extends StatelessWidget {
           exercisesByCategory.putIfAbsent(exercise.category, () => []).add(exercise);
         }
 
+        // Filter exercises based on search and category
+        final filteredExercises = workoutProvider.exercises.where((exercise) {
+          final matchesSearch = exercise.name.toLowerCase().contains(_searchQuery.toLowerCase());
+          final matchesCategory = _selectedCategory == null || exercise.category == _selectedCategory;
+          return matchesSearch && matchesCategory;
+        }).toList();
+
+        final categories = exercisesByCategory.keys.toList()..sort();
+
         return Container(
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.8,
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -258,22 +276,79 @@ class _ExerciseSelector extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  children: exercisesByCategory.entries.map((entry) {
-                    return ExpansionTile(
-                      title: Text(entry.key),
-                      children: entry.value.map((exercise) {
-                        return ListTile(
-                          title: Text(exercise.name),
-                          onTap: () {
-                            workoutProvider.addExerciseToWorkout(exercise);
-                            Navigator.pop(context);
+              
+              // Search bar
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Search exercises...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              
+              // Category filter
+              SizedBox(
+                height: 40,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: const Text('All'),
+                          selected: _selectedCategory == null,
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedCategory = null;
+                            });
                           },
-                        );
-                      }).toList(),
+                        ),
+                      );
+                    }
+                    final category = categories[index - 1];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(category),
+                        selected: _selectedCategory == category,
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = selected ? category : null;
+                          });
+                        },
+                      ),
                     );
-                  }).toList(),
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Exercise list
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filteredExercises.length,
+                  itemBuilder: (context, index) {
+                    final exercise = filteredExercises[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(exercise.name),
+                        subtitle: Text('${exercise.category}${exercise.description != null ? ' • ${exercise.description}' : ''}'),
+                        trailing: const Icon(Icons.add),
+                        onTap: () {
+                          workoutProvider.addExerciseToWorkout(exercise);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

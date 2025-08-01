@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../providers/user_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/workout_provider.dart';
 import '../models/user.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -124,6 +125,14 @@ class ProfileScreen extends StatelessWidget {
                         title: const Text('Backup Data'),
                         trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () => _showBackupDialog(context),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.refresh),
+                        title: const Text('Reload Exercise Database'),
+                        subtitle: const Text('Update to latest exercise collection'),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () => _showReloadExercisesDialog(context),
                       ),
                     ],
                   ),
@@ -328,6 +337,68 @@ class ProfileScreen extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReloadExercisesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reload Exercise Database'),
+        content: const Text(
+          'This will reload the exercise database with the latest collection of exercises. '
+          'Your custom exercises will be preserved.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              // Show loading indicator
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const AlertDialog(
+                  content: Row(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 16),
+                      Text('Reloading exercises...'),
+                    ],
+                  ),
+                ),
+              );
+              
+              try {
+                await context.read<WorkoutProvider>().reloadExercisesDatabase();
+                if (context.mounted) {
+                  Navigator.pop(context); // Close loading dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Exercise database reloaded successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  Navigator.pop(context); // Close loading dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error reloading exercises: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Reload'),
           ),
         ],
       ),
