@@ -88,10 +88,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     margin: const EdgeInsets.all(4.0),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(8.0),
+                      shape: BoxShape.circle,
                       border: Border.all(
                         color: Colors.green.withOpacity(0.5),
-                        width: 1,
+                        width: 2,
                       ),
                     ),
                     child: Stack(
@@ -137,7 +137,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     color: _isWorkoutDay(day) 
                         ? Colors.green 
                         : Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(8.0),
+                    shape: BoxShape.circle,
                   ),
                   child: Stack(
                     children: [
@@ -183,7 +183,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     color: _isWorkoutDay(day) 
                         ? Colors.green.shade700 
                         : Theme.of(context).primaryColor.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(8.0),
+                    shape: BoxShape.circle,
                   ),
                   child: Stack(
                     children: [

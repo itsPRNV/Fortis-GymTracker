@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../providers/workout_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/theme_provider.dart';
@@ -59,7 +60,13 @@ class HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gym Tracker'),
+        title: Text(
+          'ForgR',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
         actions: [
           Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
@@ -97,6 +104,7 @@ class HomeTab extends StatelessWidget {
                         title: 'Total Workouts',
                         value: '${workoutProvider.workouts.length}',
                         icon: Icons.fitness_center,
+                        color: const Color(0xFFFF6B6B),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -105,6 +113,7 @@ class HomeTab extends StatelessWidget {
                         title: 'Current Streak',
                         value: '${userProvider.currentStreak}',
                         icon: Icons.local_fire_department,
+                        color: const Color(0xFF4ECDC4),
                       ),
                     ),
                   ],
@@ -119,35 +128,35 @@ class HomeTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 
                 if (workoutProvider.isWorkoutActive)
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.play_circle_filled, color: Colors.green),
-                      title: const Text('Resume Workout'),
-                      subtitle: Text('${workoutProvider.currentWorkout!.name}'),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const WorkoutScreen()),
-                      ),
+                  _ActionCard(
+                    icon: Icons.play_circle_filled,
+                    title: 'Resume Workout',
+                    subtitle: '${workoutProvider.currentWorkout!.name}',
+                    color: const Color(0xFF4ECDC4),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const WorkoutScreen()),
                     ),
                   )
                 else
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.add_circle),
-                      title: const Text('Start New Workout'),
-                      onTap: () => _showStartWorkoutDialog(context),
-                    ),
+                  _ActionCard(
+                    icon: Icons.add_circle,
+                    title: 'Start New Workout',
+                    subtitle: 'Begin your fitness journey',
+                    color: const Color(0xFFFF6B6B),
+                    onTap: () => _showStartWorkoutDialog(context),
                   ),
                 
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.show_chart),
-                    title: const Text('Exercise Tracking'),
-                    subtitle: const Text('View progress charts'),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ExerciseTrackingScreen()),
-                    ),
+                const SizedBox(height: 12),
+                
+                _ActionCard(
+                  icon: Icons.show_chart,
+                  title: 'Exercise Tracking',
+                  subtitle: 'View progress charts',
+                  color: const Color(0xFFFFE66D),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ExerciseTrackingScreen()),
                   ),
                 ),
                 
@@ -266,38 +275,152 @@ class HomeTab extends StatelessWidget {
   }
 }
 
+class _ActionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withOpacity(0.1),
+                border: Border.all(
+                  color: color.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                icon,
+                size: 24,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withOpacity(0.1),
+              ),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
+  final Color color;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.icon,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Icon(icon, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineMedium,
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(0.1),
+            border: Border.all(
+              color: color.withOpacity(0.3),
+              width: 2,
             ),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: color,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.headlineMedium?.color,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

@@ -226,11 +226,21 @@ class _ExerciseListView extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                border: Border.all(
+                  color: Theme.of(context).primaryColor.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
               child: Icon(
                 Icons.fitness_center,
                 color: Theme.of(context).primaryColor,
+                size: 20,
               ),
             ),
             title: Text(
@@ -250,7 +260,19 @@ class _ExerciseListView extends StatelessWidget {
                   ),
               ],
             ),
-            trailing: const Icon(Icons.arrow_forward_ios),
+            trailing: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+              ),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
             onTap: () => onExerciseSelected(exercise),
           ),
         );
