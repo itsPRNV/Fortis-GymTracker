@@ -21,7 +21,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -32,6 +32,20 @@ class DatabaseService {
       // Clear and reload exercises with new comprehensive list
       await db.delete('exercises');
       await _insertDefaultExercises(db);
+    }
+    if (oldVersion < 3) {
+      // Remove inappropriate exercises and duplicates
+      await db.delete('exercises', where: 'name = ?', whereArgs: ['fuck him']);
+      await db.delete('exercises', where: 'name LIKE ?', whereArgs: ['%fuck%']);
+      // Remove duplicates
+      await db.execute('''
+        DELETE FROM exercises 
+        WHERE id NOT IN (
+          SELECT MIN(id) 
+          FROM exercises 
+          GROUP BY name, category
+        )
+      ''');
     }
   }
 
@@ -469,6 +483,26 @@ class DatabaseService {
     final db = await instance.database;
     await db.delete('exercises');
     await _insertDefaultExercises(db);
+  }
+
+  // Method to remove inappropriate exercises
+  Future<void> removeInappropriateExercises() async {
+    final db = await instance.database;
+    await db.delete('exercises', where: 'name = ?', whereArgs: ['fuck him']);
+    await db.delete('exercises', where: 'name LIKE ?', whereArgs: ['%fuck%']);
+  }
+
+  // Method to remove duplicate exercises
+  Future<void> removeDuplicateExercises() async {
+    final db = await instance.database;
+    await db.execute('''
+      DELETE FROM exercises 
+      WHERE id NOT IN (
+        SELECT MIN(id) 
+        FROM exercises 
+        GROUP BY name, category
+      )
+    ''');
   }
 
   Future close() async {

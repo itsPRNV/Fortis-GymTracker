@@ -28,40 +28,50 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, child) {
           return MaterialApp(
             title: 'Gym Tracker',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              brightness: Brightness.light,
-              useMaterial3: true,
-              textTheme: GoogleFonts.montserratTextTheme(
-                Theme.of(context).textTheme,
-              ).copyWith(
-                headlineLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-                headlineMedium: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-                headlineSmall: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-                titleLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-                titleMedium: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-                titleSmall: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
-              ),
-            ),
-            darkTheme: ThemeData(
-              primarySwatch: Colors.blue,
-              brightness: Brightness.dark,
-              useMaterial3: true,
-              textTheme: GoogleFonts.montserratTextTheme(
-                ThemeData.dark().textTheme,
-              ).copyWith(
-                headlineLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold, color: Colors.white),
-                headlineMedium: GoogleFonts.montserrat(fontWeight: FontWeight.bold, color: Colors.white),
-                headlineSmall: GoogleFonts.montserrat(fontWeight: FontWeight.bold, color: Colors.white),
-                titleLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold, color: Colors.white),
-                titleMedium: GoogleFonts.montserrat(fontWeight: FontWeight.w600, color: Colors.white),
-                titleSmall: GoogleFonts.montserrat(fontWeight: FontWeight.w600, color: Colors.white),
-              ),
-            ),
+            theme: _buildLightTheme(),
+            darkTheme: _buildDarkTheme(),
             themeMode: themeProvider.themeMode,
             home: const HomeScreen(),
           );
         },
+      ),
+    );
+  }
+
+  ThemeData _buildLightTheme() {
+    final baseTheme = ThemeData(
+      primarySwatch: Colors.blue,
+      brightness: Brightness.light,
+      useMaterial3: true,
+    );
+    
+    return baseTheme.copyWith(
+      textTheme: GoogleFonts.montserratTextTheme(baseTheme.textTheme).copyWith(
+        headlineLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        headlineMedium: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        headlineSmall: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        titleLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        titleMedium: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+        titleSmall: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    final baseTheme = ThemeData(
+      primarySwatch: Colors.blue,
+      brightness: Brightness.dark,
+      useMaterial3: true,
+    );
+    
+    return baseTheme.copyWith(
+      textTheme: GoogleFonts.montserratTextTheme(baseTheme.textTheme).copyWith(
+        headlineLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        headlineMedium: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        headlineSmall: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        titleLarge: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
+        titleMedium: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+        titleSmall: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
       ),
     );
   }

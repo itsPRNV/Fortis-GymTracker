@@ -120,4 +120,10 @@ class WorkoutProvider extends ChangeNotifier {
   Future<List<Workout>> getWorkoutsLast30Days() async {
     return await DatabaseService.instance.getWorkoutsLast30Days();
   }
+
+  Future<void> cleanupInappropriateExercises() async {
+    await DatabaseService.instance.removeInappropriateExercises();
+    await DatabaseService.instance.removeDuplicateExercises();
+    await loadExercises();
+  }
 }

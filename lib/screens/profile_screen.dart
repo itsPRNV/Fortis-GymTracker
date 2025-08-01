@@ -134,6 +134,14 @@ class ProfileScreen extends StatelessWidget {
                         trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () => _showReloadExercisesDialog(context),
                       ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.cleaning_services),
+                        title: const Text('Clean Exercise Database'),
+                        subtitle: const Text('Remove inappropriate and duplicate exercises'),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () => _showCleanupExercisesDialog(context),
+                      ),
                     ],
                   ),
                 ),
@@ -399,6 +407,67 @@ class ProfileScreen extends StatelessWidget {
               }
             },
             child: const Text('Reload'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCleanupExercisesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clean Exercise Database'),
+        content: const Text(
+          'This will remove inappropriate and duplicate exercises from the database. '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const AlertDialog(
+                  content: Row(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 16),
+                      Text('Cleaning exercises...'),
+                    ],
+                  ),
+                ),
+              );
+              
+              try {
+                await context.read<WorkoutProvider>().cleanupInappropriateExercises();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Exercise database cleaned successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error cleaning exercises: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Clean'),
           ),
         ],
       ),
