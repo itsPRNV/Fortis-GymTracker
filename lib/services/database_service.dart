@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/exercise.dart';
 import '../models/user.dart';
+import '../screens/exercise_tracking_screen.dart';
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -545,6 +546,31 @@ class DatabaseService {
       counts[dateOnly] = row['count'] as int;
     }
     return counts;
+  }
+
+  // Get exercise progress data
+  Future<List<ExerciseProgress>> getExerciseProgress(int exerciseId) async {
+    final db = await instance.database;
+    final result = await db.rawQuery('''
+      SELECT 
+        w.date,
+        MAX(ws.weight) as max_weight,
+        MAX(ws.reps) as max_reps,
+        MAX(ws.duration) as max_duration
+      FROM workouts w
+      JOIN workout_exercises we ON w.id = we.workout_id
+      JOIN workout_sets ws ON we.id = ws.workout_exercise_id
+      WHERE we.exercise_id = ?
+      GROUP BY DATE(w.date)
+      ORDER BY w.date
+    ''', [exerciseId]);
+    
+    return result.map((row) => ExerciseProgress(
+      date: DateTime.parse(row['date'] as String),
+      maxWeight: row['max_weight'] as double?,
+      maxReps: row['max_reps'] as int,
+      maxDuration: row['max_duration'] as int?,
+    )).toList();
   }
 
   Future close() async {

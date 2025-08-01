@@ -51,6 +51,8 @@ class User {
       fitnessGoal: map['fitness_goal'],
     );
   }
+
+
 }
 
 class BodyMetric {
@@ -87,6 +89,8 @@ class BodyMetric {
       muscleMass: map['muscle_mass']?.toDouble(),
     );
   }
+
+
 }
 
 class Achievement {

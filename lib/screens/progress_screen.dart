@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/user_provider.dart';
 import '../providers/workout_provider.dart';
+import '../providers/tab_state_provider.dart';
+import 'exercise_tracking_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -17,7 +19,23 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    final tabState = context.read<TabStateProvider>();
+    _tabController = TabController(
+      length: 3, 
+      vsync: this,
+      initialIndex: tabState.progressTabIndex,
+    );
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        context.read<TabStateProvider>().setProgressTabIndex(_tabController.index);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -25,6 +43,16 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
     return Scaffold(
       appBar: AppBar(
         title: const Text('Progress'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.show_chart),
+            tooltip: 'Exercise Tracking',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ExerciseTrackingScreen()),
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

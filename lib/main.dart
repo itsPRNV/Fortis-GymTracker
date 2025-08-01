@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'providers/theme_provider.dart';
 import 'providers/workout_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/timer_provider.dart';
+import 'providers/tab_state_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/database_service.dart';
 
@@ -23,6 +25,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => WorkoutProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+        ChangeNotifierProvider(create: (_) => TabStateProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

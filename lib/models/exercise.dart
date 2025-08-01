@@ -28,6 +28,8 @@ class Exercise {
       description: map['description'],
     );
   }
+
+
 }
 
 class WorkoutSet {
@@ -130,4 +132,6 @@ class Workout {
       duration: map['duration'],
     );
   }
+
+
 }

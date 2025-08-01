@@ -10,6 +10,7 @@ import 'timer_screen.dart';
 import 'workout_detail_screen.dart';
 import 'workout_history_screen.dart';
 import 'calendar_screen.dart';
+import 'exercise_tracking_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -137,6 +138,18 @@ class HomeTab extends StatelessWidget {
                       onTap: () => _showStartWorkoutDialog(context),
                     ),
                   ),
+                
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.show_chart),
+                    title: const Text('Exercise Tracking'),
+                    subtitle: const Text('View progress charts'),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ExerciseTrackingScreen()),
+                    ),
+                  ),
+                ),
                 
                 const SizedBox(height: 16),
                 
