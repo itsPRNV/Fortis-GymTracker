@@ -9,6 +9,7 @@ import 'profile_screen.dart';
 import 'timer_screen.dart';
 import 'workout_detail_screen.dart';
 import 'workout_history_screen.dart';
+import 'calendar_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const HomeTab(),
     const WorkoutScreen(),
     const ProgressScreen(),
+    const CalendarScreen(),
     const TimerScreen(),
     const ProfileScreen(),
   ];
@@ -40,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Workout'),
           BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Progress'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Calendar'),
           BottomNavigationBarItem(icon: Icon(Icons.timer), label: 'Timer'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],

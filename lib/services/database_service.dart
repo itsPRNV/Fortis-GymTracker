@@ -505,6 +505,48 @@ class DatabaseService {
     ''');
   }
 
+  // Get workout dates for calendar
+  Future<Set<DateTime>> getWorkoutDates() async {
+    final db = await instance.database;
+    final result = await db.query('workouts', columns: ['date']);
+    return result.map((row) => DateTime.parse(row['date'] as String)).toSet();
+  }
+
+  // Get workouts for a specific date
+  Future<List<Workout>> getWorkoutsForDate(DateTime date) async {
+    final db = await instance.database;
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    
+    final workoutResults = await db.query(
+      'workouts',
+      where: 'date >= ? AND date <= ?',
+      whereArgs: [startOfDay.toIso8601String(), endOfDay.toIso8601String()],
+      orderBy: 'date DESC',
+    );
+    
+    return _buildWorkoutsFromResults(workoutResults);
+  }
+
+  // Get workout counts per day
+  Future<Map<DateTime, int>> getWorkoutCounts() async {
+    final db = await instance.database;
+    final result = await db.rawQuery('''
+      SELECT date, COUNT(*) as count
+      FROM workouts
+      GROUP BY DATE(date)
+      ORDER BY date
+    ''');
+    
+    final Map<DateTime, int> counts = {};
+    for (final row in result) {
+      final date = DateTime.parse(row['date'] as String);
+      final dateOnly = DateTime(date.year, date.month, date.day);
+      counts[dateOnly] = row['count'] as int;
+    }
+    return counts;
+  }
+
   Future close() async {
     final db = await instance.database;
     db.close();
