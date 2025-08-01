@@ -352,6 +352,25 @@ class DatabaseService {
     final db = await instance.database;
     final workoutResults = await db.query('workouts', orderBy: 'date DESC');
     
+    return _buildWorkoutsFromResults(workoutResults);
+  }
+
+  Future<List<Workout>> getWorkoutsLast30Days() async {
+    final db = await instance.database;
+    final thirtyDaysAgo = DateTime.now().subtract(Duration(days: 30)).toIso8601String();
+    final workoutResults = await db.query(
+      'workouts',
+      where: 'date >= ?',
+      whereArgs: [thirtyDaysAgo],
+      orderBy: 'date DESC',
+    );
+    
+    return _buildWorkoutsFromResults(workoutResults);
+  }
+
+  Future<List<Workout>> _buildWorkoutsFromResults(List<Map<String, dynamic>> workoutResults) async {
+    final db = await instance.database;
+    
     final workouts = <Workout>[];
     
     for (final workoutMap in workoutResults) {

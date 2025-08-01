@@ -116,4 +116,8 @@ class WorkoutProvider extends ChangeNotifier {
     await DatabaseService.instance.clearAndReloadExercises();
     await loadExercises();
   }
+
+  Future<List<Workout>> getWorkoutsLast30Days() async {
+    return await DatabaseService.instance.getWorkoutsLast30Days();
+  }
 }

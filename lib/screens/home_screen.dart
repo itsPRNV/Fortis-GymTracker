@@ -8,6 +8,7 @@ import 'progress_screen.dart';
 import 'profile_screen.dart';
 import 'timer_screen.dart';
 import 'workout_detail_screen.dart';
+import 'workout_history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -137,9 +138,21 @@ class HomeTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 
                 // Recent Workouts
-                Text(
-                  'Recent Workouts',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Workouts',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+                      ),
+                      child: const Text('View All'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 
