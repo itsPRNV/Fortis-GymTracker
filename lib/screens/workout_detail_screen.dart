@@ -82,7 +82,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                 exercise: exercise,
                 exerciseNumber: index + 1,
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -211,7 +211,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
           ],
         ),
       ),

@@ -164,7 +164,7 @@ class _ExerciseCard extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

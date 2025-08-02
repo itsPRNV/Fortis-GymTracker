@@ -116,7 +116,7 @@ class _WorkoutProgressTab extends StatelessWidget {
                         ),
                       ),
                       leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
+                        sideTitles: const SideTitles(
                           showTitles: true,
                           reservedSize: 40,
                         ),
@@ -243,7 +243,7 @@ class _BodyMetricsTab extends StatelessWidget {
                           ),
                         ),
                         leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
+                          sideTitles: const SideTitles(
                             showTitles: true,
                             reservedSize: 40,
                           ),

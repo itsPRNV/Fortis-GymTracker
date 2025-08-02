@@ -8,7 +8,7 @@ import 'workout_screen.dart';
 import 'progress_screen.dart';
 import 'profile_screen.dart';
 import 'timer_screen.dart';
-import 'workout_detail_screen.dart';
+
 import 'workout_history_screen.dart';
 import 'calendar_screen.dart';
 import 'exercise_tracking_screen.dart';
@@ -131,7 +131,7 @@ class HomeTab extends StatelessWidget {
                   _ActionCard(
                     icon: Icons.play_circle_filled,
                     title: 'Resume Workout',
-                    subtitle: '${workoutProvider.currentWorkout!.name}',
+                    subtitle: workoutProvider.currentWorkout!.name,
                     color: const Color(0xFF4ECDC4),
                     onTap: () => Navigator.push(
                       context,

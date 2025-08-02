@@ -372,7 +372,7 @@ class DatabaseService {
 
   Future<List<Workout>> getWorkoutsLast30Days() async {
     final db = await instance.database;
-    final thirtyDaysAgo = DateTime.now().subtract(Duration(days: 30)).toIso8601String();
+    final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30)).toIso8601String();
     final workoutResults = await db.query(
       'workouts',
       where: 'date >= ?',
