@@ -149,7 +149,7 @@ class HomeTab extends StatelessWidget {
                 
                 const SizedBox(height: 12),
                 
-                _ActionCard(
+_ActionCard(
                   icon: Icons.show_chart,
                   title: 'Exercise Tracking',
                   subtitle: 'View progress charts',
@@ -160,75 +160,17 @@ class HomeTab extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 
-                // Recent Workouts
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Recent Workouts',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
-                      ),
-                      child: const Text('View All'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                
-                Expanded(
-                  child: workoutProvider.workouts.isEmpty
-                      ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.fitness_center, size: 64, color: Colors.grey),
-                              SizedBox(height: 16),
-                              Text(
-                                'No workouts yet',
-                                style: TextStyle(fontSize: 18, color: Colors.grey),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Start your first workout to see it here',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: workoutProvider.workouts.take(5).length,
-                          itemBuilder: (context, index) {
-                            final workout = workoutProvider.workouts[index];
-                            return Card(
-                              child: ListTile(
-                                title: Text(workout.name),
-                                subtitle: Text(
-                                  '${workout.date.day}/${workout.date.month}/${workout.date.year} • ${workout.exercises.length} exercises',
-                                ),
-                                trailing: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${workout.duration ?? 0} min'),
-                                    const Icon(Icons.arrow_forward_ios, size: 16),
-                                  ],
-                                ),
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => WorkoutDetailScreen(workout: workout),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                _ActionCard(
+                  icon: Icons.history,
+                  title: 'Workout History',
+                  subtitle: 'View workout history',
+                  color: const Color(0xFF9B59B6),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+                  ),
                 ),
               ],
             ),
