@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:fl_chart/fl_chart.dart';
 import '../services/database_service.dart';
 import '../models/exercise.dart';
@@ -613,16 +612,3 @@ class _ExerciseProgressViewState extends State<_ExerciseProgressView> {
   }
 }
 
-class ExerciseProgress {
-  final DateTime date;
-  final double? maxWeight;
-  final int maxReps;
-  final int? maxDuration;
-
-  ExerciseProgress({
-    required this.date,
-    this.maxWeight,
-    required this.maxReps,
-    this.maxDuration,
-  });
-}

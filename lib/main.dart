@@ -6,6 +6,7 @@ import 'providers/workout_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/timer_provider.dart';
 import 'providers/tab_state_provider.dart';
+import 'providers/template_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/database_service.dart';
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => TabStateProvider()),
+        ChangeNotifierProvider(create: (_) => TemplateProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -58,11 +60,16 @@ class MyApp extends StatelessWidget {
         onBackground: Color(0xFF1A1A1A),
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
-        headlineLarge: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF1A1A1A)),
-        headlineMedium: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF1A1A1A)),
-        headlineSmall: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF1A1A1A)),
-        titleLarge: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF1A1A1A)),
-        titleMedium: GoogleFonts.inter(fontWeight: FontWeight.w500, color: const Color(0xFF1A1A1A)),
+        headlineLarge: GoogleFonts.inter(
+            fontWeight: FontWeight.bold, color: const Color(0xFF1A1A1A)),
+        headlineMedium: GoogleFonts.inter(
+            fontWeight: FontWeight.bold, color: const Color(0xFF1A1A1A)),
+        headlineSmall: GoogleFonts.inter(
+            fontWeight: FontWeight.w600, color: const Color(0xFF1A1A1A)),
+        titleLarge: GoogleFonts.inter(
+            fontWeight: FontWeight.w600, color: const Color(0xFF1A1A1A)),
+        titleMedium: GoogleFonts.inter(
+            fontWeight: FontWeight.w500, color: const Color(0xFF1A1A1A)),
         bodyLarge: GoogleFonts.inter(color: const Color(0xFF1A1A1A)),
         bodyMedium: GoogleFonts.inter(color: const Color(0xFF666666)),
       ),
@@ -75,7 +82,8 @@ class MyApp extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFFF6B6B),
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
         ),
       ),
@@ -98,12 +106,18 @@ class MyApp extends StatelessWidget {
         onBackground: Colors.white,
       ),
       scaffoldBackgroundColor: const Color(0xFF121212),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-        headlineLarge: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
-        headlineMedium: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
-        headlineSmall: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
-        titleLarge: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
-        titleMedium: GoogleFonts.inter(fontWeight: FontWeight.w500, color: Colors.white),
+      textTheme:
+          GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
+        headlineLarge:
+            GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
+        headlineMedium:
+            GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
+        headlineSmall:
+            GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
+        titleLarge:
+            GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
+        titleMedium:
+            GoogleFonts.inter(fontWeight: FontWeight.w500, color: Colors.white),
         bodyLarge: GoogleFonts.inter(color: Colors.white),
         bodyMedium: GoogleFonts.inter(color: const Color(0xFFB0B0B0)),
         bodySmall: GoogleFonts.inter(color: const Color(0xFF888888)),
@@ -117,7 +131,8 @@ class MyApp extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFFF6B6B),
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 0,
         ),
       ),

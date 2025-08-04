@@ -2,7 +2,22 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/exercise.dart';
 import '../models/user.dart';
-import '../screens/exercise_tracking_screen.dart';
+import '../models/workout_template.dart';
+
+class ExerciseProgress {
+  final DateTime date;
+  final double? maxWeight;
+  final int maxReps;
+  final int? maxDuration;
+
+  ExerciseProgress({
+    required this.date,
+    this.maxWeight,
+    required this.maxReps,
+    this.maxDuration,
+  });
+}
+
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -22,7 +37,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -45,6 +60,37 @@ class DatabaseService {
           SELECT MIN(id) 
           FROM exercises 
           GROUP BY name, category
+        )
+      ''');
+    }
+    if (oldVersion < 4) {
+      // Add template tables
+      await db.execute('''
+        CREATE TABLE workout_templates (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE template_exercises (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          template_id INTEGER NOT NULL,
+          exercise_id INTEGER NOT NULL,
+          FOREIGN KEY (template_id) REFERENCES workout_templates (id),
+          FOREIGN KEY (exercise_id) REFERENCES exercises (id)
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE template_sets (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          template_exercise_id INTEGER NOT NULL,
+          reps INTEGER NOT NULL,
+          weight REAL,
+          duration INTEGER,
+          FOREIGN KEY (template_exercise_id) REFERENCES template_exercises (id)
         )
       ''');
     }
@@ -120,6 +166,35 @@ class DatabaseService {
         description TEXT NOT NULL,
         icon TEXT NOT NULL,
         unlocked_date TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE workout_templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE template_exercises (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        template_id INTEGER NOT NULL,
+        exercise_id INTEGER NOT NULL,
+        FOREIGN KEY (template_id) REFERENCES workout_templates (id),
+        FOREIGN KEY (exercise_id) REFERENCES exercises (id)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE template_sets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        template_exercise_id INTEGER NOT NULL,
+        reps INTEGER NOT NULL,
+        weight REAL,
+        duration INTEGER,
+        FOREIGN KEY (template_exercise_id) REFERENCES template_exercises (id)
       )
     ''');
 
@@ -571,6 +646,93 @@ class DatabaseService {
       maxReps: row['max_reps'] as int,
       maxDuration: row['max_duration'] as int?,
     )).toList();
+  }
+
+  // Template operations
+  Future<int> insertTemplate(WorkoutTemplate template) async {
+    final db = await instance.database;
+    final templateId = await db.insert('workout_templates', template.toMap());
+    
+    for (final templateExercise in template.exercises) {
+      final templateExerciseId = await db.insert('template_exercises', {
+        'template_id': templateId,
+        'exercise_id': templateExercise.exerciseId,
+      });
+      
+      for (final set in templateExercise.sets) {
+        await db.insert('template_sets', {
+          'template_exercise_id': templateExerciseId,
+          'reps': set.reps,
+          'weight': set.weight,
+          'duration': set.duration,
+        });
+      }
+    }
+    
+    return templateId;
+  }
+
+  Future<List<WorkoutTemplate>> getTemplates() async {
+    final db = await instance.database;
+    final templateResults = await db.query('workout_templates', orderBy: 'created_at DESC');
+    
+    final templates = <WorkoutTemplate>[];
+    
+    for (final templateMap in templateResults) {
+      final templateId = templateMap['id'] as int;
+      
+      final templateExerciseResults = await db.rawQuery('''
+        SELECT te.*, e.name as exercise_name, e.category as exercise_category
+        FROM template_exercises te
+        JOIN exercises e ON te.exercise_id = e.id
+        WHERE te.template_id = ?
+      ''', [templateId]);
+      
+      final templateExercises = <TemplateExercise>[];
+      
+      for (final teMap in templateExerciseResults) {
+        final templateExerciseId = teMap['id'] as int;
+        
+        final setResults = await db.query(
+          'template_sets',
+          where: 'template_exercise_id = ?',
+          whereArgs: [templateExerciseId],
+        );
+        
+        final sets = setResults.map((setMap) => TemplateSet(
+          id: setMap['id'] as int?,
+          templateExerciseId: setMap['template_exercise_id'] as int,
+          reps: setMap['reps'] as int,
+          weight: setMap['weight'] as double?,
+          duration: setMap['duration'] as int?,
+        )).toList();
+        
+        templateExercises.add(TemplateExercise(
+          id: templateExerciseId,
+          templateId: templateId,
+          exerciseId: teMap['exercise_id'] as int,
+          exerciseName: teMap['exercise_name'] as String,
+          exerciseCategory: teMap['exercise_category'] as String,
+          sets: sets,
+        ));
+      }
+      
+      templates.add(WorkoutTemplate(
+        id: templateId,
+        name: templateMap['name'] as String,
+        createdAt: DateTime.parse(templateMap['created_at'] as String),
+        exercises: templateExercises,
+      ));
+    }
+    
+    return templates;
+  }
+
+  Future<void> deleteTemplate(int templateId) async {
+    final db = await instance.database;
+    await db.delete('template_sets', where: 'template_exercise_id IN (SELECT id FROM template_exercises WHERE template_id = ?)', whereArgs: [templateId]);
+    await db.delete('template_exercises', where: 'template_id = ?', whereArgs: [templateId]);
+    await db.delete('workout_templates', where: 'id = ?', whereArgs: [templateId]);
   }
 
   Future close() async {

@@ -38,6 +38,16 @@ class WorkoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void startWorkoutFromTemplate(Workout templateWorkout) {
+    _currentWorkout = Workout(
+      name: templateWorkout.name,
+      date: DateTime.now(),
+      exercises: templateWorkout.exercises,
+    );
+    _workoutStartTime = DateTime.now();
+    notifyListeners();
+  }
+
   void addExerciseToWorkout(Exercise exercise) {
     if (_currentWorkout != null) {
       final workoutExercise = WorkoutExercise(

@@ -12,6 +12,7 @@ import 'timer_screen.dart';
 import 'workout_history_screen.dart';
 import 'calendar_screen.dart';
 import 'exercise_tracking_screen.dart';
+import 'template_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,27 +61,26 @@ class HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
-          'ForgR',
+          'Fortis',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
-        actions: [
-          Consumer<ThemeProvider>(
-            builder: (context, themeProvider, child) {
-              return IconButton(
-                icon: Icon(
-                  themeProvider.themeMode == ThemeMode.dark
-                      ? Icons.light_mode
-                      : Icons.dark_mode,
-                ),
-                onPressed: themeProvider.toggleTheme,
-              );
-            },
-          ),
-        ],
+        leading: Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            return IconButton(
+              icon: Icon(
+                themeProvider.themeMode == ThemeMode.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: themeProvider.toggleTheme,
+            );
+          },
+        ),
       ),
       body: Consumer2<WorkoutProvider, UserProvider>(
         builder: (context, workoutProvider, userProvider, child) {
@@ -170,6 +170,19 @@ _ActionCard(
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+                  ),
+                ),
+                
+                const SizedBox(height: 12),
+                
+                _ActionCard(
+                  icon: Icons.bookmark,
+                  title: 'Workout Templates',
+                  subtitle: 'Create and use templates',
+                  color: const Color(0xFF3498DB),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TemplateScreen()),
                   ),
                 ),
               ],
