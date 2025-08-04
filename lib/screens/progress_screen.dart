@@ -43,6 +43,8 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
     return Scaffold(
       appBar: AppBar(
         title: const Text('Progress'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.show_chart),
@@ -474,24 +476,24 @@ class _AchievementCard extends StatelessWidget {
           icon,
           style: TextStyle(
             fontSize: 32,
-            color: isUnlocked ? null : Colors.grey,
+            color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
           ),
         ),
         title: Text(
           title,
           style: TextStyle(
-            color: isUnlocked ? null : Colors.grey,
+            color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
           ),
         ),
         subtitle: Text(
           description,
           style: TextStyle(
-            color: isUnlocked ? null : Colors.grey,
+            color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
           ),
         ),
         trailing: isUnlocked
             ? const Icon(Icons.check_circle, color: Colors.green)
-            : const Icon(Icons.lock, color: Colors.grey),
+            : Icon(Icons.lock, color: Theme.of(context).colorScheme.outline),
       ),
     );
   }

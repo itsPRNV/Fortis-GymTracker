@@ -90,7 +90,8 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exercise Tracking'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -100,8 +101,8 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                    color: Theme.of(context).colorScheme.surface,
+                    border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.2))),
                   ),
                   child: Column(
                     children: [
@@ -202,15 +203,15 @@ class _ExerciseListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (exercises.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            Icon(Icons.search_off, size: 64, color: Theme.of(context).colorScheme.outline),
+            const SizedBox(height: 16),
             Text(
               'No exercises found',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
         ),
@@ -230,15 +231,15 @@ class _ExerciseListView extends StatelessWidget {
               height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 border: Border.all(
-                  color: Theme.of(context).primaryColor.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                   width: 2,
                 ),
               ),
               child: Icon(
                 Icons.fitness_center,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.primary,
                 size: 20,
               ),
             ),
@@ -253,7 +254,7 @@ class _ExerciseListView extends StatelessWidget {
                 if (exercise.description != null)
                   Text(
                     exercise.description!,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                    style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -264,12 +265,12 @@ class _ExerciseListView extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               ),
               child: Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             onTap: () => onExerciseSelected(exercise),
@@ -306,8 +307,8 @@ class _ExerciseProgressViewState extends State<_ExerciseProgressView> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+            color: Theme.of(context).colorScheme.surface,
+            border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.2))),
           ),
           child: Row(
             children: [
@@ -326,9 +327,7 @@ class _ExerciseProgressViewState extends State<_ExerciseProgressView> {
                     ),
                     Text(
                       widget.exercise.category,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -339,20 +338,20 @@ class _ExerciseProgressViewState extends State<_ExerciseProgressView> {
         // Content
         Expanded(
           child: widget.progressData.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.show_chart, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
+                      Icon(Icons.show_chart, size: 64, color: Theme.of(context).colorScheme.outline),
+                      const SizedBox(height: 16),
                       Text(
                         'No data available for this exercise',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Complete workouts with this exercise to see progress',
-                        style: TextStyle(color: Colors.grey),
+                        style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
                     ],

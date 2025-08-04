@@ -13,6 +13,7 @@ import 'workout_history_screen.dart';
 import 'calendar_screen.dart';
 import 'exercise_tracking_screen.dart';
 import 'template_screen.dart';
+import '../widgets/custom_bottom_nav.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,10 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeTab(),
-    const WorkoutScreen(),
-    const ProgressScreen(),
+    const TemplateScreen(),
     const CalendarScreen(),
+    const ProgressScreen(),
     const TimerScreen(),
     const ProfileScreen(),
   ];
@@ -37,18 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
+      bottomNavigationBar: CustomBottomNav(
+        selectedIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Workout'),
-          BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: 'Progress'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Calendar'),
-          BottomNavigationBarItem(icon: Icon(Icons.timer), label: 'Timer'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
       ),
     );
   }

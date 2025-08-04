@@ -87,6 +87,17 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFCCCCCC)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFCCCCCC)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFFF6B6B)),
+        ),
+      ),
     );
   }
 
@@ -147,6 +158,25 @@ class MyApp extends StatelessWidget {
         backgroundColor: Color(0xFF121212),
         foregroundColor: Colors.white,
         elevation: 0,
+      ),
+      dialogTheme: const DialogTheme(
+        backgroundColor: Color(0xFF1E1E1E),
+        titleTextStyle: TextStyle(color: Colors.white),
+        contentTextStyle: TextStyle(color: Colors.white),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        fillColor: Color(0xFF1E1E1E),
+        filled: true,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF666666)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF666666)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFFF6B6B)),
+        ),
+        labelStyle: TextStyle(color: Color(0xFFB0B0B0)),
       ),
     );
   }

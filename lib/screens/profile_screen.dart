@@ -15,6 +15,8 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -488,7 +490,7 @@ class _CreateProfileView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.person_add, size: 64, color: Colors.grey),
+          Icon(Icons.person_add, size: 64, color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 16),
           const Text(
             'Create Your Profile',
@@ -560,9 +562,7 @@ class _ProfileHeader extends StatelessWidget {
         if (user.email != null)
           Text(
             user.email!,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
       ],
     );

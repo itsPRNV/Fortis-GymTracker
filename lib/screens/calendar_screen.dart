@@ -54,7 +54,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Workout Calendar'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Column(
         children: [
@@ -263,15 +264,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
             const SizedBox(height: 16),
             Expanded(
               child: _selectedDayWorkouts.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.fitness_center, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
+                          Icon(Icons.fitness_center, size: 64, color: Theme.of(context).colorScheme.outline),
+                          const SizedBox(height: 16),
                           Text(
                             'No workouts on this day',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
                       ),

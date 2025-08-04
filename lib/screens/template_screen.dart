@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../providers/template_provider.dart';
 import '../providers/workout_provider.dart';
+import '../providers/theme_provider.dart';
 import 'create_template_screen.dart';
 
 class TemplateScreen extends StatelessWidget {
@@ -11,7 +13,26 @@ class TemplateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Workout Templates'),
+        centerTitle: true,
+        title: Text(
+          'Fortis',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        leading: Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            return IconButton(
+              icon: Icon(
+                themeProvider.themeMode == ThemeMode.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: themeProvider.toggleTheme,
+            );
+          },
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -26,7 +47,7 @@ class TemplateScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'My Templates',
+                      'Workout Templates',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     Text(

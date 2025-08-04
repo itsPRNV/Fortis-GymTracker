@@ -40,6 +40,8 @@ class _TimerScreenState extends State<TimerScreen> with SingleTickerProviderStat
     return Scaffold(
       appBar: AppBar(
         title: const Text('Timer'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -199,7 +201,7 @@ class _RestTimerTab extends StatelessWidget {
                     child: CircularProgressIndicator(
                       value: timerProvider.restTimerProgress,
                       strokeWidth: 8,
-                      backgroundColor: Colors.grey[300],
+                      backgroundColor: Theme.of(context).colorScheme.outline.withOpacity(0.3),
                     ),
                   ),
                   Column(
@@ -280,13 +282,13 @@ class _PresetButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.grey[200],
+          color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
