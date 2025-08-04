@@ -329,57 +329,7 @@ class DatabaseService {
       {'name': 'Shoulder Stretch', 'category': 'Mobility', 'description': 'Shoulder mobility work'},
       {'name': 'Cat-Cow Stretch', 'category': 'Mobility', 'description': 'Spinal mobility exercise'},
       
-      // Arm Exercises - Triceps
-      {'name': 'Close Grip Bench Press', 'category': 'Arms', 'description': 'Narrow grip bench press'},
-      {'name': 'Tricep Dips', 'category': 'Arms', 'description': 'Parallel bar or bench dips'},
-      {'name': 'Overhead Tricep Extension', 'category': 'Arms', 'description': 'Seated overhead extension'},
-      {'name': 'Lying Tricep Extension', 'category': 'Arms', 'description': 'Skull crushers'},
-      {'name': 'Tricep Pushdowns', 'category': 'Arms', 'description': 'Cable tricep pushdowns'},
-      {'name': 'Diamond Push-ups', 'category': 'Arms', 'description': 'Close grip push-ups'},
-      {'name': 'Kickbacks', 'category': 'Arms', 'description': 'Dumbbell tricep kickbacks'},
-      
-      // Core Exercises
-      {'name': 'Plank', 'category': 'Core', 'description': 'Standard plank hold'},
-      {'name': 'Side Plank', 'category': 'Core', 'description': 'Lateral plank hold'},
-      {'name': 'Crunches', 'category': 'Core', 'description': 'Basic abdominal crunches'},
-      {'name': 'Bicycle Crunches', 'category': 'Core', 'description': 'Alternating bicycle motion'},
-      {'name': 'Russian Twists', 'category': 'Core', 'description': 'Seated torso rotations'},
-      {'name': 'Mountain Climbers', 'category': 'Core', 'description': 'Dynamic plank movement'},
-      {'name': 'Dead Bug', 'category': 'Core', 'description': 'Lying core stability exercise'},
-      {'name': 'Hanging Leg Raises', 'category': 'Core', 'description': 'Hanging knee/leg raises'},
-      {'name': 'Ab Wheel Rollouts', 'category': 'Core', 'description': 'Ab wheel exercise'},
-      {'name': 'Leg Raises', 'category': 'Core', 'description': 'Lying leg raises'},
-      {'name': 'Sit-ups', 'category': 'Core', 'description': 'Full sit-up movement'},
-      {'name': 'V-ups', 'category': 'Core', 'description': 'V-shaped crunch movement'},
-      
-      // Cardio Exercises
-      {'name': 'Treadmill', 'category': 'Cardio', 'description': 'Treadmill running/walking'},
-      {'name': 'Elliptical', 'category': 'Cardio', 'description': 'Elliptical machine'},
-      {'name': 'Stationary Bike', 'category': 'Cardio', 'description': 'Exercise bike'},
-      {'name': 'Rowing Machine', 'category': 'Cardio', 'description': 'Indoor rowing'},
-      {'name': 'Stair Climber', 'category': 'Cardio', 'description': 'Stair climbing machine'},
-      {'name': 'Burpees', 'category': 'Cardio', 'description': 'Full body burpee exercise'},
-      {'name': 'Jumping Jacks', 'category': 'Cardio', 'description': 'Jumping jack exercise'},
-      {'name': 'High Knees', 'category': 'Cardio', 'description': 'High knee running in place'},
-      {'name': 'Jump Rope', 'category': 'Cardio', 'description': 'Skipping rope exercise'},
-      
-      // Functional/Olympic Exercises
-      {'name': 'Clean and Press', 'category': 'Olympic', 'description': 'Olympic clean and press'},
-      {'name': 'Snatch', 'category': 'Olympic', 'description': 'Olympic snatch lift'},
-      {'name': 'Clean and Jerk', 'category': 'Olympic', 'description': 'Olympic clean and jerk'},
-      {'name': 'Thrusters', 'category': 'Functional', 'description': 'Squat to overhead press'},
-      {'name': 'Turkish Get-ups', 'category': 'Functional', 'description': 'Full body get-up movement'},
-      {'name': 'Farmers Walk', 'category': 'Functional', 'description': 'Heavy carry exercise'},
-      {'name': 'Battle Ropes', 'category': 'Functional', 'description': 'Heavy rope training'},
-      {'name': 'Kettlebell Swings', 'category': 'Functional', 'description': 'Hip hinge kettlebell movement'},
-      {'name': 'Box Jumps', 'category': 'Functional', 'description': 'Plyometric box jumps'},
-      
-      // Stretching/Mobility
-      {'name': 'Foam Rolling', 'category': 'Mobility', 'description': 'Self-myofascial release'},
-      {'name': 'Hip Flexor Stretch', 'category': 'Mobility', 'description': 'Hip flexor stretching'},
-      {'name': 'Hamstring Stretch', 'category': 'Mobility', 'description': 'Hamstring flexibility'},
-      {'name': 'Shoulder Stretch', 'category': 'Mobility', 'description': 'Shoulder mobility work'},
-      {'name': 'Cat-Cow Stretch', 'category': 'Mobility', 'description': 'Spinal mobility exercise'},
+
     ];
 
     for (final exercise in exercises) {
@@ -554,32 +504,7 @@ class DatabaseService {
     return result.map((json) => BodyMetric.fromMap(json)).toList();
   }
 
-  // Method to clear and reload exercises (useful for updates)
-  Future<void> clearAndReloadExercises() async {
-    final db = await instance.database;
-    await db.delete('exercises');
-    await _insertDefaultExercises(db);
-  }
 
-  // Method to remove inappropriate exercises
-  Future<void> removeInappropriateExercises() async {
-    final db = await instance.database;
-    await db.delete('exercises', where: 'name = ?', whereArgs: ['fuck him']);
-    await db.delete('exercises', where: 'name LIKE ?', whereArgs: ['%fuck%']);
-  }
-
-  // Method to remove duplicate exercises
-  Future<void> removeDuplicateExercises() async {
-    final db = await instance.database;
-    await db.execute('''
-      DELETE FROM exercises 
-      WHERE id NOT IN (
-        SELECT MIN(id) 
-        FROM exercises 
-        GROUP BY name, category
-      )
-    ''');
-  }
 
   // Get workout dates for calendar
   Future<Set<DateTime>> getWorkoutDates() async {

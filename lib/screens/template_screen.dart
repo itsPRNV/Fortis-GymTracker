@@ -5,6 +5,8 @@ import '../providers/template_provider.dart';
 import '../providers/workout_provider.dart';
 import '../providers/theme_provider.dart';
 import 'create_template_screen.dart';
+import 'workout_screen.dart';
+import 'workout_history_screen.dart';
 
 class TemplateScreen extends StatelessWidget {
   const TemplateScreen({super.key});
@@ -12,6 +14,17 @@ class TemplateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Colors.white,
+        label: const Text('History'),
+        icon: const Icon(Icons.history),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       appBar: AppBar(
         centerTitle: true,
         title: Text(
@@ -167,7 +180,10 @@ class TemplateScreen extends StatelessWidget {
                                       final workoutProvider = context.read<WorkoutProvider>();
                                       final workout = templateProvider.createWorkoutFromTemplate(template);
                                       workoutProvider.startWorkoutFromTemplate(workout);
-                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => const WorkoutScreen()),
+                                      );
                                     } else if (value == 'delete') {
                                       _showDeleteDialog(context, template, templateProvider);
                                     }

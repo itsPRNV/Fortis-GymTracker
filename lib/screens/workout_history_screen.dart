@@ -26,9 +26,10 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   }
 
   Future<void> _loadWorkouts() async {
-    final workouts = await context.read<WorkoutProvider>().getWorkoutsLast30Days();
+    final workoutProvider = context.read<WorkoutProvider>();
+    await workoutProvider.loadWorkouts();
     setState(() {
-      _workouts = workouts;
+      _workouts = workoutProvider.workouts;
       _isLoading = false;
     });
   }
@@ -44,7 +45,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             return [
               pw.Header(
                 level: 0,
-                child: pw.Text('Workout History - Last 30 Days', 
+                child: pw.Text('Complete Workout History', 
                   style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
               ),
               pw.SizedBox(height: 20),
@@ -133,7 +134,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              'Last 30 days',
+              'Complete history',
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
           ),
@@ -149,7 +150,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                       Icon(Icons.history, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
-                        'No workouts in the last 30 days',
+                        'No workout history found',
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                       SizedBox(height: 8),

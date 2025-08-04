@@ -1,0 +1,19 @@
+APP ICON SETUP INSTRUCTIONS:
+
+1. Save your pixelated dumbbell PNG image as "app_icon.png" in this folder (assets/images/)
+
+2. Run these commands in your terminal:
+   flutter pub get
+   flutter pub run flutter_launcher_icons
+
+3. The package will automatically generate all required icon sizes for Android
+
+Your icon should be:
+- 1024x1024 pixels (or at least 512x512)
+- PNG format
+- Named exactly "app_icon.png"
+- Placed in assets/images/ folder
+
+The configuration is already set up in pubspec.yaml with:
+- Background color: #1A1A1A (dark theme color)
+- Adaptive icon support for modern Android devices

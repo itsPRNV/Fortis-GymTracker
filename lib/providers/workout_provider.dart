@@ -13,10 +13,7 @@ class WorkoutProvider extends ChangeNotifier {
   Workout? get currentWorkout => _currentWorkout;
   bool get isWorkoutActive => _currentWorkout != null;
 
-  WorkoutProvider() {
-    loadExercises();
-    loadWorkouts();
-  }
+  WorkoutProvider();
 
   Future<void> loadExercises() async {
     _exercises = await DatabaseService.instance.getExercises();
@@ -122,18 +119,5 @@ class WorkoutProvider extends ChangeNotifier {
     await loadExercises();
   }
 
-  Future<void> reloadExercisesDatabase() async {
-    await DatabaseService.instance.clearAndReloadExercises();
-    await loadExercises();
-  }
 
-  Future<List<Workout>> getWorkoutsLast30Days() async {
-    return await DatabaseService.instance.getWorkoutsLast30Days();
-  }
-
-  Future<void> cleanupInappropriateExercises() async {
-    await DatabaseService.instance.removeInappropriateExercises();
-    await DatabaseService.instance.removeDuplicateExercises();
-    await loadExercises();
-  }
 }

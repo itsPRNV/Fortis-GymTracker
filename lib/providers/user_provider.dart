@@ -11,10 +11,7 @@ class UserProvider extends ChangeNotifier {
   List<BodyMetric> get bodyMetrics => _bodyMetrics;
   int get currentStreak => _currentStreak;
 
-  UserProvider() {
-    loadUser();
-    loadBodyMetrics();
-  }
+  UserProvider();
 
   Future<void> loadUser() async {
     _user = await DatabaseService.instance.getUser();

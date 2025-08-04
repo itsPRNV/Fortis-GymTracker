@@ -76,8 +76,21 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
   }
 }
 
-class _WorkoutProgressTab extends StatelessWidget {
+class _WorkoutProgressTab extends StatefulWidget {
   const _WorkoutProgressTab();
+
+  @override
+  State<_WorkoutProgressTab> createState() => _WorkoutProgressTabState();
+}
+
+class _WorkoutProgressTabState extends State<_WorkoutProgressTab> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WorkoutProvider>().loadWorkouts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +146,7 @@ class _WorkoutProgressTab extends StatelessWidget {
                         barRods: [
                           BarChartRodData(
                             toY: entry.value,
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).colorScheme.secondary,
                             width: 20,
                           ),
                         ],
@@ -177,7 +190,7 @@ class _WorkoutProgressTab extends StatelessWidget {
 
   Map<int, double> _generateWeeklyWorkoutData(List<dynamic> workouts) {
     final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
     final data = <int, double>{};
     
     for (int i = 0; i < 7; i++) {
@@ -185,9 +198,11 @@ class _WorkoutProgressTab extends StatelessWidget {
     }
     
     for (final workout in workouts) {
-      final workoutDate = workout.date;
-      if (workoutDate.isAfter(weekStart) && workoutDate.isBefore(now.add(const Duration(days: 1)))) {
-        final dayIndex = workoutDate.weekday - 1;
+      final workoutDate = DateTime(workout.date.year, workout.date.month, workout.date.day);
+      final daysDiff = workoutDate.difference(weekStart).inDays;
+      
+      if (daysDiff >= 0 && daysDiff < 7) {
+        final dayIndex = daysDiff;
         data[dayIndex] = (data[dayIndex] ?? 0) + 1;
       }
     }
@@ -196,8 +211,22 @@ class _WorkoutProgressTab extends StatelessWidget {
   }
 }
 
-class _BodyMetricsTab extends StatelessWidget {
+class _BodyMetricsTab extends StatefulWidget {
   const _BodyMetricsTab();
+
+  @override
+  State<_BodyMetricsTab> createState() => _BodyMetricsTabState();
+}
+
+class _BodyMetricsTabState extends State<_BodyMetricsTab> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().loadUser();
+      context.read<UserProvider>().loadBodyMetrics();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +289,7 @@ class _BodyMetricsTab extends StatelessWidget {
                             return FlSpot(entry.key.toDouble(), entry.value.weight);
                           }).toList(),
                           isCurved: true,
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).colorScheme.secondary,
                           barWidth: 3,
                           dotData: const FlDotData(show: true),
                         ),
