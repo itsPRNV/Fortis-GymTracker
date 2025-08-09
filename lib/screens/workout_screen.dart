@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/workout_provider.dart';
 import '../models/exercise.dart';
+import 'form_correction_screen.dart';
 
 class WorkoutScreen extends StatelessWidget {
   const WorkoutScreen({super.key});
@@ -126,9 +127,23 @@ class _ExerciseCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  exercise.exercise?.name ?? 'Unknown Exercise',
-                  style: Theme.of(context).textTheme.titleMedium,
+                Expanded(
+                  child: Text(
+                    exercise.exercise?.name ?? 'Unknown Exercise',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.videocam),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FormCorrectionScreen(
+                        exerciseName: exercise.exercise?.name ?? 'Exercise',
+                      ),
+                    ),
+                  ),
+                  tooltip: 'Form Check',
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),

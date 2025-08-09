@@ -7,6 +7,7 @@ import 'providers/user_provider.dart';
 import 'providers/timer_provider.dart';
 import 'providers/tab_state_provider.dart';
 import 'providers/template_provider.dart';
+import 'providers/form_correction_provider.dart';
 import 'screens/home_screen.dart';
 import 'services/database_service.dart';
 
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => TabStateProvider()),
         ChangeNotifierProvider(create: (_) => TemplateProvider()),
+        ChangeNotifierProvider(create: (_) => FormCorrectionProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

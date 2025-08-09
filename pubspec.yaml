@@ -22,6 +22,10 @@ dependencies:
   table_calendar: ^3.0.9
   pdf: ^3.10.4
   path_provider: ^2.1.1
+  camera: ^0.10.5
+  google_ml_kit: ^0.16.0
+  flutter_tts: ^3.8.3
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:

@@ -13,7 +13,9 @@ class WorkoutProvider extends ChangeNotifier {
   Workout? get currentWorkout => _currentWorkout;
   bool get isWorkoutActive => _currentWorkout != null;
 
-  WorkoutProvider();
+  WorkoutProvider() {
+    loadExercises();
+  }
 
   Future<void> loadExercises() async {
     _exercises = await DatabaseService.instance.getExercises();
