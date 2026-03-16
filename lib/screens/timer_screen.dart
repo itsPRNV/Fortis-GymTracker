@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/timer_provider.dart';
 import '../providers/tab_state_provider.dart';
+import '../widgets/fortis_ui.dart';
 
 class TimerScreen extends StatefulWidget {
   const TimerScreen({super.key});
@@ -37,11 +38,9 @@ class _TimerScreenState extends State<TimerScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FortisScaffold(
       appBar: AppBar(
         title: const Text('Timer'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -68,46 +67,56 @@ class _StopwatchTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<TimerProvider>(
       builder: (context, timerProvider, child) {
-        return Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                timerProvider.stopwatchTime,
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontFamily: 'monospace',
-                  fontWeight: FontWeight.bold,
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        timerProvider.stopwatchTime,
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        ElevatedButton(
+                          onPressed: timerProvider.isStopwatchRunning
+                              ? timerProvider.stopStopwatch
+                              : timerProvider.startStopwatch,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: timerProvider.isStopwatchRunning ? Colors.red : Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
+                          child: Text(timerProvider.isStopwatchRunning ? 'Stop' : 'Start'),
+                        ),
+                        ElevatedButton(
+                          onPressed: timerProvider.resetStopwatch,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
+                          child: const Text('Reset'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 64),
-              
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: timerProvider.isStopwatchRunning 
-                        ? timerProvider.stopStopwatch 
-                        : timerProvider.startStopwatch,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: timerProvider.isStopwatchRunning ? Colors.red : Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    ),
-                    child: Text(timerProvider.isStopwatchRunning ? 'Stop' : 'Start'),
-                  ),
-                  
-                  ElevatedButton(
-                    onPressed: timerProvider.resetStopwatch,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    ),
-                    child: const Text('Reset'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -147,115 +156,120 @@ class _RestTimerTab extends StatelessWidget {
           });
         }
 
-        return Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Time presets
-              Text(
-                'Quick Set',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _PresetButton(
-                    label: '30s',
-                    seconds: 30,
-                    isSelected: timerProvider.totalSeconds == 30,
-                    onTap: () => timerProvider.setRestTimerDuration(30),
-                  ),
-                  _PresetButton(
-                    label: '60s',
-                    seconds: 60,
-                    isSelected: timerProvider.totalSeconds == 60,
-                    onTap: () => timerProvider.setRestTimerDuration(60),
-                  ),
-                  _PresetButton(
-                    label: '90s',
-                    seconds: 90,
-                    isSelected: timerProvider.totalSeconds == 90,
-                    onTap: () => timerProvider.setRestTimerDuration(90),
-                  ),
-                  _PresetButton(
-                    label: '2m',
-                    seconds: 120,
-                    isSelected: timerProvider.totalSeconds == 120,
-                    onTap: () => timerProvider.setRestTimerDuration(120),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 48),
-              
-              // Timer display
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: CircularProgressIndicator(
-                      value: timerProvider.restTimerProgress,
-                      strokeWidth: 8,
-                      backgroundColor: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Quick Set',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        timerProvider.formatRestTime(
-                          timerProvider.isRestTimerRunning 
-                              ? timerProvider.remainingSeconds 
-                              : timerProvider.totalSeconds
+                    const SizedBox(height: 16),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        _PresetButton(
+                          label: '30s',
+                          seconds: 30,
+                          isSelected: timerProvider.totalSeconds == 30,
+                          onTap: () => timerProvider.setRestTimerDuration(30),
                         ),
-                        style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          fontFamily: 'monospace',
-                          fontWeight: FontWeight.bold,
+                        _PresetButton(
+                          label: '60s',
+                          seconds: 60,
+                          isSelected: timerProvider.totalSeconds == 60,
+                          onTap: () => timerProvider.setRestTimerDuration(60),
                         ),
-                      ),
-                      if (timerProvider.isRestTimerRunning)
-                        Text(
-                          'Rest Time',
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        _PresetButton(
+                          label: '90s',
+                          seconds: 90,
+                          isSelected: timerProvider.totalSeconds == 90,
+                          onTap: () => timerProvider.setRestTimerDuration(90),
                         ),
-                    ],
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 48),
-              
-              // Control buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: timerProvider.isRestTimerRunning 
-                        ? timerProvider.stopRestTimer 
-                        : timerProvider.startRestTimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: timerProvider.isRestTimerRunning ? Colors.red : Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        _PresetButton(
+                          label: '2m',
+                          seconds: 120,
+                          isSelected: timerProvider.totalSeconds == 120,
+                          onTap: () => timerProvider.setRestTimerDuration(120),
+                        ),
+                      ],
                     ),
-                    child: Text(timerProvider.isRestTimerRunning ? 'Stop' : 'Start'),
-                  ),
-                  
-                  ElevatedButton(
-                    onPressed: timerProvider.resetRestTimer,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    const SizedBox(height: 32),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: CircularProgressIndicator(
+                            value: timerProvider.restTimerProgress,
+                            strokeWidth: 8,
+                            backgroundColor: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                timerProvider.formatRestTime(
+                                  timerProvider.isRestTimerRunning
+                                      ? timerProvider.remainingSeconds
+                                      : timerProvider.totalSeconds,
+                                ),
+                                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                      fontFamily: 'monospace',
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                            if (timerProvider.isRestTimerRunning)
+                              Text(
+                                'Rest Time',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
-                    child: const Text('Reset'),
-                  ),
-                ],
+                    const SizedBox(height: 32),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        ElevatedButton(
+                          onPressed: timerProvider.isRestTimerRunning
+                              ? timerProvider.stopRestTimer
+                              : timerProvider.startRestTimer,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: timerProvider.isRestTimerRunning ? Colors.red : Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
+                          child: Text(timerProvider.isRestTimerRunning ? 'Stop' : 'Start'),
+                        ),
+                        ElevatedButton(
+                          onPressed: timerProvider.resetRestTimer,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
+                          child: const Text('Reset'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

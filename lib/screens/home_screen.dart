@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../providers/workout_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/theme_provider.dart';
@@ -14,6 +13,8 @@ import 'calendar_screen.dart';
 import 'exercise_tracking_screen.dart';
 import 'template_screen.dart';
 import '../widgets/custom_bottom_nav.dart';
+import '../widgets/fortis_ui.dart';
+import '../theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.transparent,
       body: _screens[_selectedIndex],
       bottomNavigationBar: CustomBottomNav(
         selectedIndex: _selectedIndex,
@@ -50,16 +53,9 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FortisScaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Fortis',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
+        title: const Text('Fortis'),
         leading: Consumer<ThemeProvider>(
           builder: (context, themeProvider, child) {
             return IconButton(
@@ -75,55 +71,102 @@ class HomeTab extends StatelessWidget {
       ),
       body: Consumer2<WorkoutProvider, UserProvider>(
         builder: (context, workoutProvider, userProvider, child) {
+          final user = userProvider.user;
+          final activeWorkout = workoutProvider.currentWorkout;
+          final totalExercises = workoutProvider.workouts.fold<int>(
+            0,
+            (sum, workout) => sum + workout.exercises.length,
+          );
+
           return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+            child: ListView(
               children: [
-                if (userProvider.user != null)
-                  Text(
-                    'Welcome back, ${userProvider.user!.name}!',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                FortisCard(
+                  gradient: [
+                    AppTheme.accent.withOpacity(0.92),
+                    const Color(0xFFFF8A7A),
+                  ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user == null ? 'Train with intent.' : 'Welcome back, ${user.name.split(' ').first}.',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        activeWorkout != null
+                            ? 'Your ${activeWorkout.name} session is ready to continue.'
+                            : 'Build a plan, hit your sets, and keep the momentum rolling.',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Colors.white.withOpacity(0.86),
+                            ),
+                      ),
+                      const SizedBox(height: 22),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          _HeroMetric(
+                            label: 'Workouts',
+                            value: '${workoutProvider.workouts.length}',
+                          ),
+                          _HeroMetric(
+                            label: 'Streak',
+                            value: '${userProvider.currentStreak} days',
+                          ),
+                          _HeroMetric(
+                            label: 'Exercises',
+                            value: '$totalExercises logged',
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                const SizedBox(height: 20),
-                
-                // Quick Stats
+                ),
+                const SizedBox(height: 24),
+                const FortisSectionHeader(
+                  title: 'Quick pulse',
+                  subtitle: 'Snapshot of the progress you have already built.',
+                ),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
                       child: _StatCard(
-                        title: 'Total Workouts',
+                        title: 'Total workouts',
                         value: '${workoutProvider.workouts.length}',
                         icon: Icons.fitness_center,
-                        color: const Color(0xFFFF6B6B),
+                        color: AppTheme.accent,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: _StatCard(
-                        title: 'Current Streak',
+                        title: 'Current streak',
                         value: '${userProvider.currentStreak}',
                         icon: Icons.local_fire_department,
-                        color: const Color(0xFF4ECDC4),
+                        color: AppTheme.accentSecondary,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-
-                // Quick Actions
-                Text(
-                  'Quick Actions',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
                 const SizedBox(height: 16),
-                
+                const FortisSectionHeader(
+                  title: 'Launchpad',
+                  subtitle: 'Shortcuts for the screens you reach for most.',
+                ),
+                const SizedBox(height: 14),
                 if (workoutProvider.isWorkoutActive)
                   _ActionCard(
-                    icon: Icons.play_circle_filled,
+                    icon: Icons.play_circle_fill_rounded,
                     title: 'Resume Workout',
                     subtitle: workoutProvider.currentWorkout!.name,
-                    color: const Color(0xFF4ECDC4),
+                    color: AppTheme.accentSecondary,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const WorkoutScreen()),
@@ -131,46 +174,40 @@ class HomeTab extends StatelessWidget {
                   )
                 else
                   _ActionCard(
-                    icon: Icons.add_circle,
+                    icon: Icons.add_circle_rounded,
                     title: 'Start New Workout',
-                    subtitle: 'Begin your fitness journey',
-                    color: const Color(0xFFFF6B6B),
+                    subtitle: 'Kick off a fresh session with one tap',
+                    color: AppTheme.accent,
                     onTap: () => _showStartWorkoutDialog(context),
                   ),
-                
                 const SizedBox(height: 12),
-                
-_ActionCard(
-                  icon: Icons.show_chart,
+                _ActionCard(
+                  icon: Icons.show_chart_rounded,
                   title: 'Exercise Tracking',
-                  subtitle: 'View progress charts',
-                  color: const Color(0xFFFFE66D),
+                  subtitle: 'Dig into charts, volume, and movement trends',
+                  color: AppTheme.accentGold,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const ExerciseTrackingScreen()),
                   ),
                 ),
-                
                 const SizedBox(height: 12),
-                
                 _ActionCard(
-                  icon: Icons.history,
+                  icon: Icons.history_rounded,
                   title: 'Workout History',
-                  subtitle: 'View workout history',
-                  color: const Color(0xFF9B59B6),
+                  subtitle: 'Review past sessions and spot consistency',
+                  color: const Color(0xFF7C8CFF),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
                   ),
                 ),
-                
                 const SizedBox(height: 12),
-                
                 _ActionCard(
-                  icon: Icons.bookmark,
+                  icon: Icons.bookmark_rounded,
                   title: 'Workout Templates',
-                  subtitle: 'Create and use templates',
-                  color: const Color(0xFF3498DB),
+                  subtitle: 'Create repeatable training blocks that save time',
+                  color: const Color(0xFF3AA0FF),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const TemplateScreen()),
@@ -238,72 +275,55 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FortisCard(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withOpacity(0.1),
-                border: Border.all(
-                  color: color.withOpacity(0.3),
-                  width: 2,
-                ),
-              ),
-              child: Icon(
-                icon,
-                size: 24,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.titleLarge?.color,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                    ),
-                  ),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withOpacity(0.22),
+                  color.withOpacity(0.08),
                 ],
               ),
             ),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withOpacity(0.1),
-              ),
-              child: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: color,
-              ),
+            child: Icon(icon, size: 26, color: color),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.72),
+                      ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withOpacity(0.12),
+            ),
+            child: Icon(Icons.arrow_forward_rounded, size: 18, color: color),
+          ),
+        ],
       ),
     );
   }
@@ -324,49 +344,76 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withOpacity(0.1),
-            border: Border.all(
-              color: color.withOpacity(0.3),
-              width: 2,
+    return FortisCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: color.withOpacity(0.14),
             ),
+            child: Icon(icon, size: 20, color: color),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: color,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.headlineMedium?.color,
+          const SizedBox(height: 18),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
-              ),
-            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: Theme.of(context).textTheme.bodySmall?.color,
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroMetric extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _HeroMetric({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 110),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withOpacity(0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white.withOpacity(0.72),
+                ),
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }

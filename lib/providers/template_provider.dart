@@ -41,15 +41,6 @@ class TemplateProvider extends ChangeNotifier {
 
   Workout createWorkoutFromTemplate(WorkoutTemplate template) {
     final workoutExercises = template.exercises.map((templateExercise) {
-      final sets = templateExercise.sets.map((templateSet) {
-        return WorkoutSet(
-          workoutExerciseId: 0,
-          reps: templateSet.reps,
-          weight: templateSet.weight,
-          duration: templateSet.duration,
-        );
-      }).toList();
-
       return WorkoutExercise(
         workoutId: 0,
         exerciseId: templateExercise.exerciseId,
@@ -58,7 +49,7 @@ class TemplateProvider extends ChangeNotifier {
           name: templateExercise.exerciseName ?? '',
           category: templateExercise.exerciseCategory ?? '',
         ),
-        sets: sets,
+        sets: const [],
       );
     }).toList();
 

@@ -1,9 +1,12 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
+
+import '../providers/tab_state_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/workout_provider.dart';
-import '../providers/tab_state_provider.dart';
+import '../theme/app_theme.dart';
+import '../widgets/fortis_ui.dart';
 import 'exercise_tracking_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
@@ -21,7 +24,7 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
     super.initState();
     final tabState = context.read<TabStateProvider>();
     _tabController = TabController(
-      length: 3, 
+      length: 3,
       vsync: this,
       initialIndex: tabState.progressTabIndex,
     );
@@ -40,37 +43,50 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FortisScaffold(
       appBar: AppBar(
         title: const Text('Progress'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.show_chart),
+            icon: const Icon(Icons.show_chart_rounded),
             tooltip: 'Exercise Tracking',
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ExerciseTrackingScreen()),
             ),
           ),
+          const SizedBox(width: 8),
         ],
         bottom: TabBar(
           controller: _tabController,
+          dividerColor: Colors.transparent,
+          isScrollable: true,
+          indicatorSize: TabBarIndicatorSize.label,
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(colors: AppTheme.accentGradient()),
+          ),
+          indicatorPadding: const EdgeInsets.symmetric(vertical: 8),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 14),
+          labelColor: Colors.white,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
           tabs: const [
             Tab(text: 'Workouts'),
-            Tab(text: 'Body Metrics'),
-            Tab(text: 'Achievements'),
+            Tab(text: 'Body'),
+            Tab(text: 'Wins'),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          _WorkoutProgressTab(),
-          _BodyMetricsTab(),
-          _AchievementsTab(),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+        child: TabBarView(
+          controller: _tabController,
+          children: const [
+            _WorkoutProgressTab(),
+            _BodyMetricsTab(),
+            _AchievementsTab(),
+          ],
+        ),
       ),
     );
   }
@@ -97,92 +113,155 @@ class _WorkoutProgressTabState extends State<_WorkoutProgressTab> {
     return Consumer<WorkoutProvider>(
       builder: (context, workoutProvider, child) {
         final workouts = workoutProvider.workouts;
-        
-        // Generate weekly workout data
         final weeklyData = _generateWeeklyWorkoutData(workouts);
-        
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Weekly Workouts',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              
-              SizedBox(
-                height: 200,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: weeklyData.values.isEmpty ? 10 : weeklyData.values.reduce((a, b) => a > b ? a : b) + 2,
-                    barTouchData: BarTouchData(enabled: false),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                            return Text(days[value.toInt() % 7]);
-                          },
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: const SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                        ),
-                      ),
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    barGroups: weeklyData.entries.map((entry) {
-                      return BarChartGroupData(
-                        x: entry.key,
-                        barRods: [
-                          BarChartRodData(
-                            toY: entry.value,
-                            color: Theme.of(context).colorScheme.secondary,
-                            width: 20,
+        final totalMinutes = workouts.fold<int>(0, (sum, workout) => sum + (workout.duration ?? 0));
+
+        return ListView(
+          children: [
+            FortisCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const FortisSectionHeader(
+                    title: 'Weekly volume',
+                    subtitle: 'Your sessions across the current week.',
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 220,
+                    child: BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: weeklyData.values.isEmpty ? 4 : weeklyData.values.reduce((a, b) => a > b ? a : b) + 1,
+                        barTouchData: BarTouchData(enabled: true),
+                        gridData: FlGridData(
+                          drawVerticalLine: false,
+                          getDrawingHorizontalLine: (value) => FlLine(
+                            color: Theme.of(context).dividerColor,
+                            strokeWidth: 1,
                           ),
-                        ],
-                      );
-                    }).toList(),
+                        ),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(days[value.toInt() % 7]),
+                                );
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 28,
+                              getTitlesWidget: (value, meta) => Text('${value.toInt()}'),
+                            ),
+                          ),
+                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        ),
+                        borderData: FlBorderData(show: false),
+                        barGroups: weeklyData.entries.map((entry) {
+                          return BarChartGroupData(
+                            x: entry.key,
+                            barRods: [
+                              BarChartRodData(
+                                toY: entry.value,
+                                width: 18,
+                                borderRadius: BorderRadius.circular(10),
+                                gradient: LinearGradient(colors: AppTheme.accentGradient()),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _InsightTile(
+                    title: 'Sessions',
+                    value: '${workouts.length}',
+                    color: AppTheme.accent,
                   ),
                 ),
-              ),
-              
-              const SizedBox(height: 32),
-              
-              Text(
-                'Recent Workouts',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              
-              Expanded(
-                child: ListView.builder(
-                  itemCount: workouts.length,
-                  itemBuilder: (context, index) {
-                    final workout = workouts[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(workout.name),
-                        subtitle: Text(
-                          '${workout.date.day}/${workout.date.month}/${workout.date.year} • ${workout.exercises.length} exercises',
-                        ),
-                        trailing: Text('${workout.duration ?? 0} min'),
-                      ),
-                    );
-                  },
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _InsightTile(
+                    title: 'Minutes',
+                    value: '$totalMinutes',
+                    color: AppTheme.accentSecondary,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const FortisSectionHeader(
+              title: 'Recent workouts',
+              subtitle: 'A quick recap of your latest training blocks.',
+            ),
+            const SizedBox(height: 12),
+            if (workouts.isEmpty)
+              const FortisEmptyState(
+                icon: Icons.insights_rounded,
+                title: 'No workout data yet',
+                subtitle: 'Complete a session and your progress story will start here.',
+              )
+            else
+              ...workouts.map((workout) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: FortisCard(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            color: AppTheme.accent.withOpacity(0.14),
+                          ),
+                          child: const Icon(Icons.bolt_rounded, color: AppTheme.accent),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                workout.name,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${workout.date.day}/${workout.date.month}/${workout.date.year} - ${workout.exercises.length} exercises',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${workout.duration ?? 0} min',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppTheme.accentSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+          ],
         );
       },
     );
@@ -192,21 +271,19 @@ class _WorkoutProgressTabState extends State<_WorkoutProgressTab> {
     final now = DateTime.now();
     final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
     final data = <int, double>{};
-    
+
     for (int i = 0; i < 7; i++) {
       data[i] = 0;
     }
-    
+
     for (final workout in workouts) {
       final workoutDate = DateTime(workout.date.year, workout.date.month, workout.date.day);
       final daysDiff = workoutDate.difference(weekStart).inDays;
-      
       if (daysDiff >= 0 && daysDiff < 7) {
-        final dayIndex = daysDiff;
-        data[dayIndex] = (data[dayIndex] ?? 0) + 1;
+        data[daysDiff] = (data[daysDiff] ?? 0) + 1;
       }
     }
-    
+
     return data;
   }
 }
@@ -233,125 +310,158 @@ class _BodyMetricsTabState extends State<_BodyMetricsTab> {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         final metrics = userProvider.bodyMetrics;
-        
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+        return ListView(
+          children: [
+            FortisCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Weight Progress',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  FortisSectionHeader(
+                    title: 'Weight trend',
+                    subtitle: 'Track body changes over time.',
+                    trailing: ElevatedButton(
+                      onPressed: () => _showAddMetricDialog(context),
+                      child: const Text('Add entry'),
+                    ),
                   ),
-                  ElevatedButton(
-                    onPressed: () => _showAddMetricDialog(context),
-                    child: const Text('Add Entry'),
+                  const SizedBox(height: 20),
+                  if (metrics.isEmpty)
+                    const SizedBox(
+                      height: 180,
+                      child: Center(
+                        child: Text('Add a body metric to start charting progress.'),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 220,
+                      child: LineChart(
+                        LineChartData(
+                          gridData: FlGridData(
+                            getDrawingHorizontalLine: (value) => FlLine(
+                              color: Theme.of(context).dividerColor,
+                              strokeWidth: 1,
+                            ),
+                            drawVerticalLine: false,
+                          ),
+                          titlesData: FlTitlesData(
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget: (value, meta) {
+                                  if (value.toInt() < metrics.length) {
+                                    final date = metrics[value.toInt()].date;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Text('${date.day}/${date.month}'),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                            ),
+                            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40)),
+                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          ),
+                          borderData: FlBorderData(show: false),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: metrics.asMap().entries.map((entry) {
+                                return FlSpot(entry.key.toDouble(), entry.value.weight);
+                              }).toList(),
+                              isCurved: true,
+                              gradient: LinearGradient(colors: AppTheme.accentGradient()),
+                              barWidth: 4,
+                              dotData: const FlDotData(show: true),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (userProvider.user != null)
+              Row(
+                children: [
+                  Expanded(
+                    child: _InsightTile(
+                      title: 'Weight',
+                      value: '${userProvider.user!.currentWeight?.toStringAsFixed(1) ?? '-'} kg',
+                      color: AppTheme.accentGold,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _InsightTile(
+                      title: 'BMI',
+                      value: userProvider.user!.bmi?.toStringAsFixed(1) ?? '-',
+                      color: AppTheme.accentSecondary,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              
-              if (metrics.isNotEmpty) ...[
-                SizedBox(
-                  height: 200,
-                  child: LineChart(
-                    LineChartData(
-                      gridData: const FlGridData(show: true),
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, meta) {
-                              if (value.toInt() < metrics.length) {
-                                final date = metrics[value.toInt()].date;
-                                return Text('${date.day}/${date.month}');
-                              }
-                              return const Text('');
-                            },
+            const SizedBox(height: 20),
+            const FortisSectionHeader(
+              title: 'Entries',
+              subtitle: 'Recent body metrics and body-fat logs.',
+            ),
+            const SizedBox(height: 12),
+            if (metrics.isEmpty)
+              const FortisEmptyState(
+                icon: Icons.monitor_weight_rounded,
+                title: 'No body metrics yet',
+                subtitle: 'Log your weight to make this tab useful and motivating.',
+              )
+            else
+              ...metrics.map((metric) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: FortisCard(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: AppTheme.accentGold.withOpacity(0.16),
+                          ),
+                          child: const Icon(Icons.monitor_weight_rounded, color: AppTheme.accentGold),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${metric.weight.toStringAsFixed(1)} kg',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${metric.date.day}/${metric.date.month}/${metric.date.year}',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
-                        leftTitles: AxisTitles(
-                          sideTitles: const SideTitles(
-                            showTitles: true,
-                            reservedSize: 40,
+                        if (metric.bodyFat != null)
+                          FortisBadge(
+                            label: '${metric.bodyFat!.toStringAsFixed(1)}% BF',
+                            color: AppTheme.accent,
                           ),
-                        ),
-                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      borderData: FlBorderData(show: true),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: metrics.asMap().entries.map((entry) {
-                            return FlSpot(entry.key.toDouble(), entry.value.weight);
-                          }).toList(),
-                          isCurved: true,
-                          color: Theme.of(context).colorScheme.secondary,
-                          barWidth: 3,
-                          dotData: const FlDotData(show: true),
-                        ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-              ],
-              
-              // Current stats
-              if (userProvider.user != null) ...[
-                Text(
-                  'Current Stats',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        title: 'Weight',
-                        value: userProvider.user!.currentWeight?.toStringAsFixed(1) ?? '-',
-                        unit: 'kg',
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _StatCard(
-                        title: 'BMI',
-                        value: userProvider.user!.bmi?.toStringAsFixed(1) ?? '-',
-                        unit: '',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              
-              const SizedBox(height: 16),
-              
-              Expanded(
-                child: ListView.builder(
-                  itemCount: metrics.length,
-                  itemBuilder: (context, index) {
-                    final metric = metrics[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text('${metric.weight.toStringAsFixed(1)} kg'),
-                        subtitle: Text(
-                          '${metric.date.day}/${metric.date.month}/${metric.date.year}',
-                        ),
-                        trailing: metric.bodyFat != null
-                            ? Text('${metric.bodyFat!.toStringAsFixed(1)}% BF')
-                            : null,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+                );
+              }),
+          ],
         );
       },
     );
@@ -373,6 +483,7 @@ class _BodyMetricsTabState extends State<_BodyMetricsTab> {
               decoration: const InputDecoration(labelText: 'Weight (kg)'),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: bodyFatController,
               decoration: const InputDecoration(labelText: 'Body Fat % (optional)'),
@@ -389,7 +500,6 @@ class _BodyMetricsTabState extends State<_BodyMetricsTab> {
             onPressed: () {
               final weight = double.tryParse(weightController.text);
               final bodyFat = double.tryParse(bodyFatController.text);
-              
               if (weight != null) {
                 context.read<UserProvider>().addBodyMetric(weight, bodyFat: bodyFat);
                 Navigator.pop(context);
@@ -408,33 +518,70 @@ class _AchievementsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16),
+    return ListView(
+      children: const [
+        _AchievementCard(
+          icon: Icons.workspace_premium_rounded,
+          title: 'First Workout',
+          description: 'Complete your first workout',
+          isUnlocked: true,
+        ),
+        SizedBox(height: 12),
+        _AchievementCard(
+          icon: Icons.local_fire_department_rounded,
+          title: 'Week Warrior',
+          description: 'Work out 7 days in a row',
+          isUnlocked: false,
+        ),
+        SizedBox(height: 12),
+        _AchievementCard(
+          icon: Icons.emoji_events_rounded,
+          title: 'Century Club',
+          description: 'Complete 100 workouts',
+          isUnlocked: false,
+        ),
+        SizedBox(height: 12),
+        _AchievementCard(
+          icon: Icons.fitness_center_rounded,
+          title: 'Heavy Lifter',
+          description: 'Lift over 100kg in any exercise',
+          isUnlocked: false,
+        ),
+      ],
+    );
+  }
+}
+
+class _InsightTile extends StatelessWidget {
+  final String title;
+  final String value;
+  final Color color;
+
+  const _InsightTile({
+    required this.title,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FortisCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _AchievementCard(
-            icon: '🏋️',
-            title: 'First Workout',
-            description: 'Complete your first workout',
-            isUnlocked: true,
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
+                ),
           ),
-          _AchievementCard(
-            icon: '🔥',
-            title: 'Week Warrior',
-            description: 'Work out 7 days in a row',
-            isUnlocked: false,
-          ),
-          _AchievementCard(
-            icon: '💯',
-            title: 'Century Club',
-            description: 'Complete 100 workouts',
-            isUnlocked: false,
-          ),
-          _AchievementCard(
-            icon: '💪',
-            title: 'Heavy Lifter',
-            description: 'Lift over 100kg in any exercise',
-            isUnlocked: false,
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
           ),
         ],
       ),
@@ -442,50 +589,8 @@ class _AchievementsTab extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String unit;
-
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.unit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 8),
-            RichText(
-              text: TextSpan(
-                text: value,
-                style: Theme.of(context).textTheme.headlineMedium,
-                children: [
-                  TextSpan(
-                    text: ' $unit',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _AchievementCard extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String title;
   final String description;
   final bool isUnlocked;
@@ -499,30 +604,49 @@ class _AchievementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Text(
-          icon,
-          style: TextStyle(
-            fontSize: 32,
-            color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
+    final color = isUnlocked ? AppTheme.accentSecondary : Theme.of(context).colorScheme.outline;
+
+    return FortisCard(
+      child: Row(
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              color: color.withOpacity(0.14),
+            ),
+            child: Icon(icon, color: color),
           ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isUnlocked
+                            ? Theme.of(context).colorScheme.onSurface.withOpacity(0.68)
+                            : Theme.of(context).colorScheme.outline,
+                      ),
+                ),
+              ],
+            ),
           ),
-        ),
-        subtitle: Text(
-          description,
-          style: TextStyle(
-            color: isUnlocked ? null : Theme.of(context).colorScheme.outline,
+          Icon(
+            isUnlocked ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
+            color: isUnlocked ? Colors.green : Theme.of(context).colorScheme.outline,
           ),
-        ),
-        trailing: isUnlocked
-            ? const Icon(Icons.check_circle, color: Colors.green)
-            : Icon(Icons.lock, color: Theme.of(context).colorScheme.outline),
+        ],
       ),
     );
   }

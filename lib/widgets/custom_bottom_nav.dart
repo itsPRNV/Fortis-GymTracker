@@ -1,8 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
+import '../theme/app_theme.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int selectedIndex;
-  final Function(int) onTap;
+  final ValueChanged<int> onTap;
 
   const CustomBottomNav({
     super.key,
@@ -13,97 +17,143 @@ class CustomBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final selectedColor = const Color(0xFFFF6B6B);
-    final unselectedColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final shellColor = isDark
+        ? Colors.white.withOpacity(0.08)
+        : Colors.white.withOpacity(0.72);
 
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildNavItem(
-            icon: Icons.calendar_today,
-            index: 1,
-            selectedColor: selectedColor,
-            unselectedColor: unselectedColor,
-          ),
-          _buildNavItem(
-            icon: Icons.trending_up,
-            index: 2,
-            selectedColor: selectedColor,
-            unselectedColor: unselectedColor,
-          ),
-          _buildCenterButton(selectedColor),
-          _buildNavItem(
-            icon: Icons.timer,
-            index: 3,
-            selectedColor: selectedColor,
-            unselectedColor: unselectedColor,
-          ),
-          _buildNavItem(
-            icon: Icons.person,
-            index: 4,
-            selectedColor: selectedColor,
-            unselectedColor: unselectedColor,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required IconData icon,
-    required int index,
-    required Color selectedColor,
-    required Color unselectedColor,
-  }) {
-    final isSelected = selectedIndex == index;
-    return GestureDetector(
-      onTap: () => onTap(index),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        child: Icon(
-          icon,
-          color: isSelected ? selectedColor : unselectedColor,
-          size: 24,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCenterButton(Color selectedColor) {
-    final isSelected = selectedIndex == 0;
-    return GestureDetector(
-      onTap: () => onTap(0),
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: isSelected ? selectedColor : selectedColor.withOpacity(0.8),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: selectedColor.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            height: 84,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            decoration: BoxDecoration(
+              color: shellColor,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.24 : 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
+                ),
+              ],
             ),
-          ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: _NavItem(
+                    icon: Icons.dashboard_rounded,
+                    label: 'Home',
+                    isSelected: selectedIndex == 0,
+                    onTap: () => onTap(0),
+                  ),
+                ),
+                Expanded(
+                  child: _NavItem(
+                    icon: Icons.calendar_month_rounded,
+                    label: 'Calendar',
+                    isSelected: selectedIndex == 1,
+                    onTap: () => onTap(1),
+                  ),
+                ),
+                Expanded(
+                  child: _NavItem(
+                    icon: Icons.insights_rounded,
+                    label: 'Progress',
+                    isSelected: selectedIndex == 2,
+                    onTap: () => onTap(2),
+                  ),
+                ),
+                Expanded(
+                  child: _NavItem(
+                    icon: Icons.timer_outlined,
+                    label: 'Timer',
+                    isSelected: selectedIndex == 3,
+                    onTap: () => onTap(3),
+                  ),
+                ),
+                Expanded(
+                  child: _NavItem(
+                    icon: Icons.person_outline_rounded,
+                    label: 'Profile',
+                    isSelected: selectedIndex == 4,
+                    onTap: () => onTap(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        child: const Icon(
-          Icons.home,
-          color: Colors.white,
-          size: 28,
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = isSelected
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface.withOpacity(0.68);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(22),
+          child: Ink(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              gradient: isSelected
+                  ? LinearGradient(colors: AppTheme.accentGradient())
+                  : null,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: foreground, size: 20),
+                const SizedBox(height: 2),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: foreground,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                          ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

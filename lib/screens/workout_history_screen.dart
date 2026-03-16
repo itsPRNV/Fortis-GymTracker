@@ -256,7 +256,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
     } else if (difference == 1) {
       return 'Yesterday';
     } else if (difference < 7) {
-      return '${difference} days ago';
+      return '$difference days ago';
     } else {
       final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

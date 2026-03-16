@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/workout_provider.dart';
+
 import '../models/exercise.dart';
+import '../providers/workout_provider.dart';
+import '../theme/app_theme.dart';
+import '../widgets/fortis_ui.dart';
 import 'form_correction_screen.dart';
 
 class WorkoutScreen extends StatelessWidget {
@@ -15,30 +18,73 @@ class WorkoutScreen extends StatelessWidget {
           return const _NoActiveWorkoutScreen();
         }
 
-        return Scaffold(
+        final workout = workoutProvider.currentWorkout!;
+
+        return FortisScaffold(
           appBar: AppBar(
-            title: Text(workoutProvider.currentWorkout!.name),
+            title: Text(workout.name),
             actions: [
               IconButton(
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_circle_outline_rounded),
                 onPressed: () => _showExerciseSelector(context),
               ),
               IconButton(
-                icon: const Icon(Icons.check),
+                icon: const Icon(Icons.check_circle_outline_rounded),
                 onPressed: () => _finishWorkout(context),
               ),
+              const SizedBox(width: 8),
             ],
           ),
-          body: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: workoutProvider.currentWorkout!.exercises.length,
-            itemBuilder: (context, index) {
-              final exercise = workoutProvider.currentWorkout!.exercises[index];
-              return _ExerciseCard(
-                exercise: exercise,
-                exerciseIndex: index,
-              );
-            },
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+            children: [
+              FortisCard(
+                gradient: [
+                  Theme.of(context).cardColor.withOpacity(0.98),
+                  Theme.of(context).cardColor.withOpacity(0.82),
+                ],
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            workout.name,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${workout.exercises.length} exercises in progress',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const FortisBadge(label: 'Live', color: AppTheme.accent),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              if (workout.exercises.isEmpty)
+                const FortisEmptyState(
+                  icon: Icons.playlist_add_rounded,
+                  title: 'No exercises yet',
+                  subtitle: 'Add your first movement to get this workout rolling.',
+                )
+              else
+                ...workout.exercises.asMap().entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: _ExerciseCard(
+                      exercise: entry.value,
+                      exerciseIndex: entry.key,
+                    ),
+                  );
+                }),
+            ],
           ),
         );
       },
@@ -48,6 +94,7 @@ class WorkoutScreen extends StatelessWidget {
   void _showExerciseSelector(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) => const _ExerciseSelector(),
     );
   }
@@ -82,24 +129,13 @@ class _NoActiveWorkoutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Workout')),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.fitness_center, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No active workout',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Start a workout from the home screen',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+    return const FortisScaffold(
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: FortisEmptyState(
+          icon: Icons.fitness_center_rounded,
+          title: 'No active workout',
+          subtitle: 'Start a workout from the home screen and it will appear here.',
         ),
       ),
     );
@@ -117,71 +153,85 @@ class _ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    exercise.exercise?.name ?? 'Unknown Exercise',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+    return FortisCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  exercise.exercise?.name ?? 'Unknown Exercise',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.videocam),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FormCorrectionScreen(
-                        exerciseName: exercise.exercise?.name ?? 'Exercise',
-                      ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.videocam_outlined),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => FormCorrectionScreen(
+                      exerciseName: exercise.exercise?.name ?? 'Exercise',
                     ),
                   ),
-                  tooltip: 'Form Check',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () => _showAddSetDialog(context),
-                ),
-              ],
+                tooltip: 'Form Check',
+              ),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline_rounded),
+                onPressed: () => _showAddSetDialog(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              color: Theme.of(context).cardColor.withOpacity(0.45),
             ),
-            const SizedBox(height: 8),
-            
-            // Sets header
-            const Row(
+            child: const Row(
               children: [
-                Expanded(flex: 1, child: Text('Set', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 2, child: Text('Reps', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 2, child: Text('Weight', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(flex: 2, child: Text('Duration', style: TextStyle(fontWeight: FontWeight.bold))),
+                _HeaderCell(label: 'Set', flex: 1),
+                _HeaderCell(label: 'Reps', flex: 2),
+                _HeaderCell(label: 'Weight', flex: 2),
+                _HeaderCell(label: 'Time', flex: 2),
               ],
             ),
-            const Divider(),
-            
-            // Sets list
+          ),
+          const SizedBox(height: 8),
+          if (exercise.sets.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'No sets added yet.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
+                    ),
+              ),
+            )
+          else
             ...exercise.sets.asMap().entries.map((entry) {
               final index = entry.key;
               final set = entry.value;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+              return Container(
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  color: Theme.of(context).cardColor.withOpacity(0.28),
+                ),
                 child: Row(
                   children: [
-                    Expanded(flex: 1, child: Text('${index + 1}')),
-                    Expanded(flex: 2, child: Text('${set.reps}')),
-                    Expanded(flex: 2, child: Text(set.weight?.toString() ?? '-')),
-                    Expanded(flex: 2, child: Text(set.duration != null ? '${set.duration}s' : '-')),
+                    _ValueCell(value: '${index + 1}', flex: 1),
+                    _ValueCell(value: '${set.reps}', flex: 2),
+                    _ValueCell(value: set.weight?.toString() ?? '-', flex: 2),
+                    _ValueCell(value: set.duration != null ? '${set.duration}s' : '-', flex: 2),
                   ],
                 ),
               );
             }),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -203,11 +253,13 @@ class _ExerciseCard extends StatelessWidget {
               decoration: const InputDecoration(labelText: 'Reps'),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: weightController,
               decoration: const InputDecoration(labelText: 'Weight (kg)'),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: durationController,
               decoration: const InputDecoration(labelText: 'Duration (seconds)'),
@@ -265,7 +317,6 @@ class _ExerciseSelectorState extends State<_ExerciseSelector> {
           exercisesByCategory.putIfAbsent(exercise.category, () => []).add(exercise);
         }
 
-        // Filter exercises based on search and category
         final filteredExercises = workoutProvider.exercises.where((exercise) {
           final matchesSearch = exercise.name.toLowerCase().contains(_searchQuery.toLowerCase());
           final matchesCategory = _selectedCategory == null || exercise.category == _selectedCategory;
@@ -274,99 +325,136 @@ class _ExerciseSelectorState extends State<_ExerciseSelector> {
 
         final categories = exercisesByCategory.keys.toList()..sort();
 
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.8,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: FortisCard(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Column(
                 children: [
-                  const Text('Select Exercise', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  TextButton(
-                    onPressed: () => _showAddCustomExerciseDialog(context),
-                    child: const Text('Add Custom'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Select Exercise',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => _showAddCustomExerciseDialog(context),
+                        child: const Text('Add custom'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search exercises...',
+                      prefixIcon: Icon(Icons.search_rounded),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 40,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categories.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: const Text('All'),
+                              selected: _selectedCategory == null,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedCategory = null;
+                                });
+                              },
+                            ),
+                          );
+                        }
+                        final category = categories[index - 1];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(category),
+                            selected: _selectedCategory == category,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedCategory = selected ? category : null;
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: filteredExercises.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final exercise = filteredExercises[index];
+                        return FortisCard(
+                          padding: const EdgeInsets.all(16),
+                          onTap: () {
+                            workoutProvider.addExerciseToWorkout(exercise);
+                            Navigator.pop(context);
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 46,
+                                height: 46,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: AppTheme.accentSecondary.withOpacity(0.14),
+                                ),
+                                child: const Icon(Icons.fitness_center_rounded, color: AppTheme.accentSecondary),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      exercise.name,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      exercise.description == null
+                                          ? exercise.category
+                                          : '${exercise.category} - ${exercise.description}',
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.add_rounded),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              
-              // Search bar
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: 'Search exercises...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              
-              // Category filter
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: const Text('All'),
-                          selected: _selectedCategory == null,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedCategory = null;
-                            });
-                          },
-                        ),
-                      );
-                    }
-                    final category = categories[index - 1];
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(category),
-                        selected: _selectedCategory == category,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedCategory = selected ? category : null;
-                          });
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              // Exercise list
-              Expanded(
-                child: ListView.builder(
-                  itemCount: filteredExercises.length,
-                  itemBuilder: (context, index) {
-                    final exercise = filteredExercises[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(exercise.name),
-                        subtitle: Text('${exercise.category}${exercise.description != null ? ' • ${exercise.description}' : ''}'),
-                        trailing: const Icon(Icons.add),
-                        onTap: () {
-                          workoutProvider.addExerciseToWorkout(exercise);
-                          Navigator.pop(context);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -388,6 +476,7 @@ class _ExerciseSelectorState extends State<_ExerciseSelector> {
               controller: nameController,
               decoration: const InputDecoration(labelText: 'Exercise Name'),
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: categoryController,
               decoration: const InputDecoration(labelText: 'Category'),
@@ -403,15 +492,59 @@ class _ExerciseSelectorState extends State<_ExerciseSelector> {
             onPressed: () {
               if (nameController.text.isNotEmpty && categoryController.text.isNotEmpty) {
                 context.read<WorkoutProvider>().addCustomExercise(
-                  nameController.text,
-                  categoryController.text,
-                );
+                      nameController.text,
+                      categoryController.text,
+                    );
                 Navigator.pop(context);
               }
             },
             child: const Text('Add'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HeaderCell extends StatelessWidget {
+  final String label;
+  final int flex;
+
+  const _HeaderCell({
+    required this.label,
+    required this.flex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: flex,
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.68),
+            ),
+      ),
+    );
+  }
+}
+
+class _ValueCell extends StatelessWidget {
+  final String value;
+  final int flex;
+
+  const _ValueCell({
+    required this.value,
+    required this.flex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: flex,
+      child: Text(
+        value,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }

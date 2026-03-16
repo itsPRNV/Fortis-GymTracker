@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/template_provider.dart';
 import '../providers/workout_provider.dart';
 import '../models/workout_template.dart';
-import '../models/exercise.dart';
 
 class CreateTemplateScreen extends StatefulWidget {
   const CreateTemplateScreen({super.key});
@@ -144,13 +143,7 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
                                     exerciseId: exercise.id!,
                                     exerciseName: exercise.name,
                                     exerciseCategory: exercise.category,
-                                    sets: [
-                                      TemplateSet(
-                                        templateExerciseId: 0,
-                                        reps: 10,
-                                        weight: 0,
-                                      ),
-                                    ],
+                                    sets: const [],
                                   ));
                                 });
                               },

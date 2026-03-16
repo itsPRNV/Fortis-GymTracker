@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:google_ml_kit/google_ml_kit.dart';
 
 class FormCheckerService {
-  static const double _angleThreshold = 15.0; // degrees
 
   static String? checkSquatForm(Map<PoseLandmarkType, PoseLandmark> landmarks) {
     final leftKnee = landmarks[PoseLandmarkType.leftKnee];

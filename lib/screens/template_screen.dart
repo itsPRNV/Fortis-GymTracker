@@ -1,166 +1,159 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import '../providers/template_provider.dart';
-import '../providers/workout_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/workout_provider.dart';
+import '../theme/app_theme.dart';
+import '../widgets/fortis_ui.dart';
 import 'create_template_screen.dart';
-import 'workout_screen.dart';
 import 'workout_history_screen.dart';
+import 'workout_screen.dart';
 
 class TemplateScreen extends StatelessWidget {
   const TemplateScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        foregroundColor: Colors.white,
-        label: const Text('History'),
-        icon: const Icon(Icons.history),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+    return FortisScaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Fortis',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+        title: const Text('Fortis'),
+        actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return IconButton(
+                icon: Icon(
+                  themeProvider.themeMode == ThemeMode.dark
+                      ? Icons.light_mode_rounded
+                      : Icons.dark_mode_rounded,
+                ),
+                onPressed: themeProvider.toggleTheme,
+              );
+            },
           ),
-        ),
-        leading: Consumer<ThemeProvider>(
-          builder: (context, themeProvider, child) {
-            return IconButton(
-              icon: Icon(
-                themeProvider.themeMode == ThemeMode.dark
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-              ),
-              onPressed: themeProvider.toggleTheme,
-            );
-          },
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+          const SizedBox(width: 8),
+        ],
       ),
       body: Consumer<TemplateProvider>(
         builder: (context, templateProvider, child) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 130),
+            child: ListView(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Workout Templates',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    Text(
-                      '${templateProvider.templates.length}/3',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                FortisCard(
+                  gradient: [
+                    Theme.of(context).cardColor.withOpacity(0.98),
+                    Theme.of(context).cardColor.withOpacity(0.82),
                   ],
-                ),
-                const SizedBox(height: 16),
-                if (templateProvider.canCreateTemplate)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateTemplateScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text('Create Template'),
-                    ),
-                  ),
-                if (!templateProvider.canCreateTemplate)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const FortisSectionHeader(
+                        title: 'Workout templates',
+                        subtitle: 'Save your best splits and spin them up faster.',
                       ),
-                    ),
-                    child: Text(
-                      'Template limit reached (3/3). Delete a template to create a new one.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: templateProvider.templates.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.fitness_center,
-                                size: 64,
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No templates yet',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Create your first workout template',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
+                      const SizedBox(height: 18),
+                      Row(
+                        children: [
+                          FortisBadge(
+                            label: '${templateProvider.templates.length}/3 saved',
+                            color: AppTheme.accent,
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: templateProvider.templates.length,
-                          itemBuilder: (context, index) {
-                            final template = templateProvider.templates[index];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
-                                title: Text(
-                                  template.name,
-                                  style: Theme.of(context).textTheme.titleMedium,
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 8),
-                                    Text('${template.exercises.length} exercises'),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Created ${_formatDate(template.createdAt)}',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              templateProvider.canCreateTemplate
+                                  ? 'You still have room for another routine.'
+                                  : 'You have reached the current template cap.',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.72),
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
+                          ),
+                          icon: const Icon(Icons.history_rounded),
+                          label: const Text('Open workout history'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            side: BorderSide(
+                              color: AppTheme.accentSecondary.withOpacity(0.35),
+                            ),
+                            foregroundColor: AppTheme.accentSecondary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: templateProvider.canCreateTemplate
+                              ? () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const CreateTemplateScreen(),
                                     ),
-                                  ],
+                                  );
+                                }
+                              : null,
+                          icon: const Icon(Icons.add_rounded),
+                          label: const Text('Create template'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const FortisSectionHeader(
+                  title: 'Library',
+                  subtitle: 'Your saved sessions, ready whenever you are.',
+                ),
+                const SizedBox(height: 14),
+                if (templateProvider.templates.isEmpty)
+                  const FortisEmptyState(
+                    icon: Icons.fitness_center_rounded,
+                    title: 'No templates yet',
+                    subtitle: 'Create your first repeatable workout and keep your setup friction low.',
+                  )
+                else
+                  ...templateProvider.templates.map((template) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: FortisCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    template.name,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
                                 ),
-                                trailing: PopupMenuButton(
+                                PopupMenuButton(
                                   itemBuilder: (context) => [
-                                    PopupMenuItem(
+                                    const PopupMenuItem(
                                       value: 'use',
-                                      child: const Row(
+                                      child: Row(
                                         children: [
-                                          Icon(Icons.play_arrow),
+                                          Icon(Icons.play_arrow_rounded),
                                           SizedBox(width: 8),
-                                          Text('Start Workout'),
+                                          Text('Start workout'),
                                         ],
                                       ),
                                     ),
@@ -168,14 +161,17 @@ class TemplateScreen extends StatelessWidget {
                                       value: 'delete',
                                       child: Row(
                                         children: [
-                                          Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+                                          Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error),
                                           const SizedBox(width: 8),
-                                          Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                                          Text(
+                                            'Delete',
+                                            style: TextStyle(color: Theme.of(context).colorScheme.error),
+                                          ),
                                         ],
                                       ),
                                     ),
                                   ],
-                                  onSelected: (value) async {
+                                  onSelected: (value) {
                                     if (value == 'use') {
                                       final workoutProvider = context.read<WorkoutProvider>();
                                       final workout = templateProvider.createWorkoutFromTemplate(template);
@@ -189,11 +185,28 @@ class TemplateScreen extends StatelessWidget {
                                     }
                                   },
                                 ),
-                              ),
-                            );
-                          },
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                FortisBadge(
+                                  label: '${template.exercises.length} exercises',
+                                  color: AppTheme.accentSecondary,
+                                ),
+                                FortisBadge(
+                                  label: 'Created ${_formatDate(template.createdAt)}',
+                                  color: AppTheme.accentGold,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                ),
+                      ),
+                    );
+                  }),
               ],
             ),
           );
@@ -205,7 +218,7 @@ class TemplateScreen extends StatelessWidget {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date).inDays;
-    
+
     if (difference == 0) return 'today';
     if (difference == 1) return 'yesterday';
     if (difference < 7) return '$difference days ago';
@@ -213,7 +226,7 @@ class TemplateScreen extends StatelessWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  void _showDeleteDialog(BuildContext context, template, TemplateProvider templateProvider) {
+  void _showDeleteDialog(BuildContext context, dynamic template, TemplateProvider templateProvider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -227,7 +240,9 @@ class TemplateScreen extends StatelessWidget {
           TextButton(
             onPressed: () async {
               await templateProvider.deleteTemplate(template.id);
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
