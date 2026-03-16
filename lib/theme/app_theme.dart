@@ -37,9 +37,11 @@ class AppTheme {
       scaffoldBackgroundColor: lightBackground,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor: lightBackground.withOpacity(0.96),
+        surfaceTintColor: Colors.transparent,
         foregroundColor: const Color(0xFF101828),
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w700,
@@ -125,9 +127,11 @@ class AppTheme {
       scaffoldBackgroundColor: darkBackground,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor: darkBackground.withOpacity(0.96),
+        surfaceTintColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w700,
