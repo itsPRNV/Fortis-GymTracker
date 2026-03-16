@@ -77,7 +77,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                       pw.Text('Exercises:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                       ...workout.exercises.map((exercise) => pw.Padding(
                         padding: const pw.EdgeInsets.only(left: 10, top: 2),
-                        child: pw.Text('• ${exercise.exercise?.name ?? 'Unknown Exercise'} (${exercise.sets.length} sets)'),
+                        child: pw.Text('- ${exercise.exercise?.name ?? 'Unknown Exercise'} (${exercise.sets.length} sets)'),
                       )),
                     ],
                   ],

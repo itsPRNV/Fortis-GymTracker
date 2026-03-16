@@ -120,10 +120,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Wrap(
+                  const Wrap(
                     spacing: 12,
                     runSpacing: 12,
-                    children: const [
+                    children: [
                       _LegendChip(label: 'Workout day', color: AppTheme.accentSecondary),
                       _LegendChip(label: 'Today', color: AppTheme.accent),
                     ],
